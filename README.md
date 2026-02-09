@@ -1,4 +1,4 @@
-# Society Hub
+# Society hub 
 
 A community-driven web application that helps university students **discover, join, and engage with societies** across campus.
 

@@ -1,4 +1,3 @@
-/* Global Reset and Typography */
 * {
     margin: 0;
     padding: 0;
@@ -11,7 +10,7 @@ body {
     color: #333;
 }
 
-/* Navigation Bar Styling */
+/* Navigation Bar */
 .navbar {
     background-color: #0d0d0d;
     color: white;
@@ -42,7 +41,7 @@ body {
     text-decoration: underline;
 }
 
-/* Main Content Area */
+/* Main content */
 .content {
     padding: 2rem;
     max-width: 1200px;
@@ -50,16 +49,95 @@ body {
     min-height: 80vh;
 }
 
-/* Footer Styling */
-.footer {
-    text-align: center;
-    padding: 0rem;
-    background-color: #ecf0f1;
-    color: #666;
-    margin-top: 0rem;
+h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
 }
 
-/* Profile Card */
+h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+p {
+    font-size: 16px;
+    margin-bottom: 12px;
+    line-height: 1.6;
+}
+
+/* Cards */
+.society-card, .user-card {
+    border: 1px solid #000000;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 5px;
+    background-color: #000000;
+    color: #ffffff;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 4px;
+}
+
+.btn:hover {
+    background-color: #333333;
+}
+
+/* Tags */
+.tag {
+    display: inline-block;
+    padding: 4px 10px;
+    margin: 4px;
+    border: 1px solid #000000;
+    font-size: 12px;
+    border-radius: 4px;
+}
+
+/* Search bar */
+.search-bar {
+    margin-bottom: 30px;
+}
+
+.search-bar input {
+    padding: 10px;
+    width: 300px;
+    font-size: 16px;
+    border: 1px solid #000000;
+    margin-right: 10px;
+}
+
+/* Forms */
+form div {
+    margin-bottom: 20px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+form input {
+    padding: 10px;
+    width: 300px;
+    font-size: 16px;
+    border: 1px solid #000000;
+}
+
+/* Profile */
 .profile-container {
     background: white;
     padding: 3rem;
@@ -67,46 +145,46 @@ body {
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     max-width: 600px;
     margin: 2rem auto;
-    text-align: left; /* Centers everything in the card */
 }
 
 .profile-container h1 {
     color: #2c3e50;
-    margin-bottom: 2rem; /* Space below name, above image */
+    margin-bottom: 2rem;
     border-bottom: 2px solid #ecf0f1;
     padding-bottom: 0.5rem;
 }
 
-/* Profile Picture - sits centered below name */
 .profile-pic {
     display: block;
-    margin: 0 auto 5rem auto; /* 2rem gap below image, before Email */
+    margin: 0 auto 4rem auto;
     border-radius: 50%;
     border: 4px solid #000000;
     width: 150px;
     height: 150px;
     object-fit: cover;
-    text-align: center; /*profile pic center*/
-    line-height: 150px;
-    margin-top: 0rem;
-    margin-bottom: 4rem;
-    margin-left: 0rem;
 }
 
-/* Email and Course text spacing */
 .profile-container p {
-    margin-bottom: 0rem; /* Gap between each line of text */
     font-size: 1.1rem;
+    margin-bottom: 0.5rem;
 }
 
-/* About Me section */
+/* Bio section */
 .bio-section {
-    margin-top: 2rem; /* Gap above the About Me section */
-    text-align: left;
+    margin-top: 2rem;
     border-top: 2px solid #ecf0f1;
     padding-top: 1rem;
 }
 
 .bio-section h3 {
     margin-bottom: 0.9rem;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 1rem;
+    background-color: #ecf0f1;
+    color: #666;
+    margin-top: 2rem;
 }

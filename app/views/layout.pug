@@ -1,0 +1,23 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Society Hub
+    //- Link to our CSS file located in static/style.css
+    link(rel="stylesheet", href="/style.css")
+  body
+    //- Navigation bar that will appear on all pages
+    nav.navbar
+      div.logo Society Hub
+      ul.nav-links
+        li: a(href="#") Home
+        li: a(href="/preview/profile") Profile Mockup
+    
+    //- The block where specific page content (like profile.pug) will be injected
+    main.content
+      block content
+
+    //- Global footer
+    footer.footer
+      p &copy; 2026 Society Hub. All rights reserved.

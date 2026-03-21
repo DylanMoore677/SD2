@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  div.profile-container
+    h1 All Societies
+
+    div.search-bar
+      input(type="text", placeholder="Search societies...")
+      button.btn Search
+
+    each society in societies
+      div.society-card
+        h2= society.name
+        span.tag= society.category
+        p= society.description
+        p Members: #{society.members}
+        a.btn(href="/preview/societies/" + society.id) View Society
+        button.btn Join Society

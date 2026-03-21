@@ -1,0 +1,147 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Helvetica, Arial, Georgia, sans-serif;
+    background-color: #ffffff;
+    color: #000000;
+}
+
+/* Navbar */
+nav {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    padding: 20px 40px;
+    border-bottom: 2px solid #000000;
+    margin-bottom: 40px;
+}
+
+nav a {
+    text-decoration: none;
+    color: #000000;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+/* Main content */
+main {
+    padding: 40px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+p {
+    font-size: 16px;
+    margin-bottom: 12px;
+    line-height: 1.6;
+}
+
+/* Cards */
+.society-card, .user-card {
+    border: 1px solid #000000;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+/* Buttons and links */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 5px;
+    background-color: #000000;
+    color: #ffffff;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 4px;
+}
+
+.btn:hover {
+    background-color: #333333;
+}
+
+/* Tags */
+.tag {
+    display: inline-block;
+    padding: 4px 10px;
+    margin: 4px;
+    border: 1px solid #000000;
+    font-size: 12px;
+    border-radius: 4px;
+}
+
+/* Search bar */
+.search-bar {
+    margin-bottom: 30px;
+}
+
+.search-bar input {
+    padding: 10px;
+    width: 300px;
+    font-size: 16px;
+    border: 1px solid #000000;
+    margin-right: 10px;
+}
+
+/* Forms */
+form div {
+    margin-bottom: 20px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+form input {
+    padding: 10px;
+    width: 300px;
+    font-size: 16px;
+    border: 1px solid #000000;
+}
+
+/* Profile */
+.profile-container {
+    max-width: 800px;
+}
+
+.bio-section {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #000000;
+}
+
+/* Footer */
+footer {
+    margin-top: 60px;
+    padding: 20px 40px;
+    border-top: 2px solid #000000;
+    text-align: center;
+    font-size: 14px;
+}

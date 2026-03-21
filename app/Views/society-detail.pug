@@ -1,0 +1,26 @@
+extends layout
+
+block content
+  div.profile-container
+    a.btn(href="/preview/societies") Back to Societies
+
+    h1= society.name
+    span.tag= society.category
+    p= society.description
+    p Members: #{society.members}
+    button.btn Join Society
+    button.btn RSVP to Event
+
+    div.bio-section
+      h3 Tags
+      each tag in society.tags
+        span.tag= tag
+
+    div.bio-section
+      h3 Recent Posts
+      each post in society.posts
+        div.user-card
+          h4= post.title
+          p Date: #{post.date}
+          span.tag= post.type
+          button.btn View Post

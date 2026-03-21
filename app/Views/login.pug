@@ -1,0 +1,38 @@
+extends layout
+
+block content
+  div.profile-container
+    h1 Login to Society Hub
+
+    div
+      p Who are you logging in as?
+      a.btn(href="#") Student Login
+      a.btn(href="#") Admin Login
+
+    br
+
+    div
+      h2 Student Login
+      form
+        div
+          label Email
+          input(type="email", placeholder="Enter your university email")
+        div
+          label Password
+          input(type="password", placeholder="Enter your password")
+        button.btn Login
+        p Don't have an account?
+          a(href="#") Register here
+
+    br
+
+    div
+      h2 Admin Login
+      form
+        div
+          label Email
+          input(type="email", placeholder="Enter admin email")
+        div
+          label Password
+          input(type="password", placeholder="Enter your password")
+        button.btn Login as Admin

@@ -1,0 +1,19 @@
+//- This tells Pug to put this file's content inside layout.pug's "block content"
+extends layout
+
+//- We start filling everything under 'block content'
+block content
+  div.profile-container
+    //- Using the dynamic 'user' data we passed from our mock app.js route
+    h1 #{user.name}'s Profile
+
+    //- Profile Image must be on a single continuous line!
+    img.profile-pic(src="https://via.placeholder.com/150", alt="Profile Picture")
+
+    p Name: #{user.name}
+    p Email: #{user.email}
+    p Course: #{user.course}
+    
+    div.bio-section
+      h3 About Me
+      p #{user.bio}

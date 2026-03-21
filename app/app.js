@@ -7,8 +7,12 @@ var app = express();
 // Add static files location
 app.use(express.static("static"));
 
+// Set up Pug as the view engine
+app.set('view engine', 'pug');
+app.set('views', __dirname + '/views');
+
 // Get the functions in the db.js file to use
-const db = require('./services/db');
+// const db = require('./services/db'); // TEMPORARILY DISABLED FOR FRONTEND PREVIEW
 
 // Create a route for root - /
 app.get("/", function(req, res) {
@@ -40,6 +44,19 @@ app.get("/hello/:name", function(req, res) {
     console.log(req.params);
     //  Retrieve the 'name' parameter and use it in a dynamically generated page
     res.send("Hello " + req.params.name);
+});
+
+// --- Mock Frontend Routes ---
+app.get("/preview/profile", function(req, res) {
+    // Fake data instead of database fetching
+    const mockUser = {
+        name: "Johnny Student",
+        email: "johnny@roehampton.ac.uk",
+        course: "Computer Science",
+        bio: "I love coding and joining societies!"
+    };
+    // Renders the 'profile.pug' file in the 'views' folder
+    res.render("profile", { user: mockUser });
 });
 
 // Start server on port 3000

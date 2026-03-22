@@ -10,9 +10,7 @@ block content
 
     each society in societies
       div.society-card
-        h2= society.name
-        span.tag= society.category
-        p= society.description
-        p Members: #{society.members}
-        a.btn(href="/preview/societies/" + society.id) View Society
+        h2= society.email
+        p= society.about_us_text
+        a.btn(href="/preview/societies/" + society.society_id) View Society
         button.btn Join Society

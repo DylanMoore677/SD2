@@ -53,7 +53,7 @@ Local files are mounted into the container using the 'volumes' directive in the 
 
 http://localhost:8081/
 
-#### Visit your express app at:
+#### Visit your express app at: 
 
 http://localhost:3000
 

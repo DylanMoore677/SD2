@@ -162,6 +162,8 @@ form input {
     width: 150px;
     height: 150px;
     object-fit: cover;
+    text-align: center;
+    line-height: 150px;
 }
 
 .profile-container p {

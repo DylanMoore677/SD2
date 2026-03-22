@@ -1,0 +1,12 @@
+Layout.pug is the master template where we can change the nav bar and also where the css file is linked to so we only need to change things here and it changes it for other pages as well.
+
+Index.pug is the home page/landing page where the users sees first which has a search bar and button to view socieites.
+
+socieites.pug this showss all avaiable socieites and each society has a view society button that takes you to the specific society page.
+
+society-detail.pug is the individual society details 
+
+users,pug it shows all users with basic information
+
+Login.pug login page one for student and one for admins
+

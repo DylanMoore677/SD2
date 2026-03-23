@@ -1,9 +1,11 @@
 extends layout
 
 block content
+  //- Login page wraps both student and admin entry points inside a single card layout.
   div.profile-container
     h1 Login to Society Hub
 
+    //- These buttons act as visual role choices before full authentication logic is connected.
     div
       p Who are you logging in as?
       a.btn(href="#") Student Login
@@ -11,6 +13,7 @@ block content
 
     br
 
+    //- Student form collects the basic credentials needed for a standard member sign-in flow.
     div
       h2 Student Login
       form
@@ -26,6 +29,7 @@ block content
 
     br
 
+    //- Admin form mirrors the student form but keeps the admin journey visually separate.
     div
       h2 Admin Login
       form

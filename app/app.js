@@ -1,9 +1,10 @@
+const path = require("path");
 const express = require("express");
 var app = express();
 app.use(express.static("static"));
 
 app.set('view engine', 'pug');
-app.set('views', __dirname + '/Views');
+app.set("views", path.join(__dirname, "views"));
 
 const db = require('./services/db');
 

@@ -1,0 +1,52 @@
+extends layout
+include includes/society-tags.pug
+
+block content
+  //- Detail container presents one society with its main actions and supporting information.
+  div.profile-container
+    if prototypeMessage
+      p.notice= prototypeMessage
+    //- Back link returns the user to the listing without relying on browser history.
+    a.btn(href=(societiesBasePath || "/preview/societies")) Back to Societies
+
+    //- Primary society summary keeps the most important details visible at the top of the page.
+    h1= society.email
+    p= society.about_us_text
+    +societyTags(society)
+    button.btn Join Society
+    button.btn RSVP to Event
+
+    //- Static detail block is the place to expand key society metadata later.
+    div.bio-section
+      h3 Society Details
+      p Email: #{society.email}
+      p Members: #{members.length}
+
+    //- Categories make it easier to scan what type of community the society belongs to.
+    div.bio-section
+      h3 Tags and Categories
+      +societyTags(society)
+
+    //- Members are hidden by default so the page stays compact until the user asks to see them.
+    div.bio-section
+      button.btn(onclick="toggleMembers()") View Members
+      div#members-list(style="display:none")
+        h3 Members
+        if members.length === 0
+          p No members yet
+        else
+          each member in members
+            div.user-card
+              p #{member.first_name} #{member.last_name}
+              p= member.email
+
+    script.
+      // Toggle the members list without leaving the detail page.
+      function toggleMembers() {
+        var list = document.getElementById('members-list');
+        if (list.style.display === 'none') {
+          list.style.display = 'block';
+        } else {
+          list.style.display = 'none';
+        }
+      }

@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  //- Users page lists student records in a simple directory-style layout.
+  div.profile-container
+    h1 All Users
+    if prototypeMessage
+      p.notice= prototypeMessage
+
+    //- Each user card is intended to route to an individual profile view.
+    each user in users
+      div.user-card
+        h2 #{user.first_name} #{user.last_name}
+        p Student ID: #{user.student_id}
+        p Email: #{user.email}
+        a.btn(href=(profileBasePath || "/preview/profile") + "/" + user.student_id) View Profile

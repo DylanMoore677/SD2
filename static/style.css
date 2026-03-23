@@ -1,16 +1,18 @@
+/* Reset default browser spacing so component spacing is controlled from one place. */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* Base typography and page colors establish the shared visual style across the site. */
 body {
     font-family: "Helvetica", "Arial", "Georgia", sans-serif;
     background-color: #ffffff;
     color: #333;
 }
 
-/* Navigation Bar */
+/* Navigation bar creates the persistent site header and horizontal link layout. */
 .navbar {
     background-color: #0d0d0d;
     color: white;
@@ -41,7 +43,7 @@ body {
     text-decoration: underline;
 }
 
-/* Main content */
+/* Main content wrapper keeps each page centered with consistent breathing room. */
 .content {
     padding: 2rem;
     max-width: 1200px;
@@ -49,6 +51,7 @@ body {
     min-height: 80vh;
 }
 
+/* Shared heading and paragraph rules keep copy styling consistent between views. */
 h1 {
     font-size: 36px;
     margin-bottom: 20px;
@@ -70,7 +73,7 @@ p {
     line-height: 1.6;
 }
 
-/* Cards */
+/* Reusable card styles support society and user summaries across listing pages. */
 .society-card, .user-card {
     border: 1px solid #000000;
     padding: 20px;
@@ -78,7 +81,12 @@ p {
     border-radius: 4px;
 }
 
-/* Buttons */
+.society-card .tag-list,
+.user-card .tag-list {
+    margin-bottom: 1rem;
+}
+
+/* Button styles are shared by links and form controls to keep actions visually consistent. */
 .btn {
     display: inline-block;
     padding: 10px 20px;
@@ -96,7 +104,7 @@ p {
     background-color: #333333;
 }
 
-/* Tags */
+/* Tag chips are ready for category-style metadata wherever lightweight labels are needed. */
 .tag {
     display: inline-block;
     padding: 4px 10px;
@@ -106,7 +114,7 @@ p {
     border-radius: 4px;
 }
 
-/* Search bar */
+/* Search controls group the prototype search input and button used on listing pages. */
 .search-bar {
     margin-bottom: 30px;
 }
@@ -119,7 +127,7 @@ p {
     margin-right: 10px;
 }
 
-/* Forms */
+/* Form spacing keeps stacked labels and inputs readable on the login page. */
 form div {
     margin-bottom: 20px;
 }
@@ -137,7 +145,7 @@ form input {
     border: 1px solid #000000;
 }
 
-/* Profile */
+/* Profile container turns the profile and detail views into a focused content card. */
 .profile-container {
     background: white;
     padding: 3rem;
@@ -154,6 +162,18 @@ form input {
     padding-bottom: 0.5rem;
 }
 
+/* Notice banner highlights temporary prototype messaging without using an error style. */
+.notice {
+    background-color: #fff4d6;
+    color: #000000;
+    padding: 0.9rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    border-left: 4px solid #000000;
+}
+
+/* Circular image treatment gives the user profile picture a simple avatar presentation. */
 .profile-pic {
     display: block;
     margin: 0 auto 4rem auto;
@@ -166,12 +186,25 @@ form input {
     line-height: 150px;
 }
 
+/* Profile-specific paragraph spacing tightens the copy inside profile cards. */
 .profile-container p {
     font-size: 1.1rem;
     margin-bottom: 0.5rem;
 }
 
-/* Bio section */
+/* Tag list lets profile interests and memberships wrap neatly within the card. */
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.tag-list .tag {
+    margin: 0;
+}
+
+/* Bio section visually separates supporting information from the profile summary above it. */
 .bio-section {
     margin-top: 2rem;
     border-top: 2px solid #ecf0f1;
@@ -182,7 +215,7 @@ form input {
     margin-bottom: 0.9rem;
 }
 
-/* Footer */
+/* Footer anchors the page with a lightweight closing section below the main content. */
 .footer {
     text-align: center;
     padding: 1rem;

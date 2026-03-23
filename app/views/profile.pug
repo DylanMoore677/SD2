@@ -1,0 +1,43 @@
+extends layout
+
+
+block content
+  //- Profile card groups the prototype notice and the user's visible profile details in one focused panel.
+  div.profile-container
+    //- This notice sets expectation that the page is a frontend prototype until live data is fully wired in.
+    if showPrototypeNotice
+      p.notice This profile page is currently a prototype. Some details are placeholder content and will be connected to live user data later.
+
+    //- Core identity details stay at the top so the page reads like a standard user profile.
+    h1 #{user.first_name} #{user.last_name}'s Profile
+    img.profile-pic(src="https://via.placeholder.com/150", alt="Profile Picture")
+    p Full name: #{user.first_name} #{user.last_name}
+    if user.student_id
+      p ID: #{user.student_id}
+    p Email: #{user.email}
+
+    //- Bio section gives the page a dedicated area for user-specific background information.
+    div.bio-section
+      h3 About Me
+      p Student at Roehampton University
+
+    //- Favorite societies show the interests this prototype user would likely follow most closely.
+    div.bio-section
+      h3 Favorite Societies
+      if user.favorite_societies && user.favorite_societies.length
+        div.tag-list
+          each society in user.favorite_societies
+            span.tag= society
+      else
+        p No favorite societies added yet.
+
+    //- Joined societies separate active memberships from general interests.
+    div.bio-section
+      h3 Joined Societies
+      if user.joined_societies && user.joined_societies.length
+        div.tag-list
+          each society in user.joined_societies
+            span.tag= society
+      else
+        p No joined societies added yet.
+

@@ -1,0 +1,23 @@
+mixin societyTags(society)
+  - var email = society && society.email ? society.email.toLowerCase() : ""
+  - var rawTags = society && (society.tags || society.categories || society.tag_list)
+  - var tags = []
+  - if (Array.isArray(rawTags)) {
+  -   tags = rawTags
+  - } else if (typeof rawTags === "string") {
+  -   tags = rawTags.split(",").map(function(tag) { return tag.trim(); }).filter(function(tag) { return tag.length > 0; })
+  - }
+  - if (tags.length === 0 && email.indexOf("coding") !== -1) {
+  -   tags = ["Technology", "Projects"]
+  - } else if (tags.length === 0 && email.indexOf("chess") !== -1) {
+  -   tags = ["Games", "Strategy"]
+  - } else if (tags.length === 0 && email.indexOf("film") !== -1) {
+  -   tags = ["Arts", "Culture"]
+  - } else if (tags.length === 0 && email.indexOf("running") !== -1) {
+  -   tags = ["Sports", "Wellbeing"]
+  - } else if (tags.length === 0) {
+  -   tags = ["Community"]
+  - }
+  div.tag-list
+    each tag in tags
+      span.tag= tag

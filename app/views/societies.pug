@@ -1,0 +1,23 @@
+extends layout
+include includes/society-tags.pug
+
+block content
+  //- Main listing container keeps the societies page aligned with the shared profile-style card layout.
+  div.profile-container
+    h1 All Societies
+    if prototypeMessage
+      p.notice= prototypeMessage
+
+    //- Search UI sits above the listing so filtering can be added later without changing the page structure.
+    div.search-bar
+      input(type="text", placeholder="Search societies...")
+      button.btn Search
+
+    //- Each society card gives a short summary and a route into the individual detail page.
+    each society in societies
+      div.society-card
+        h2= society.email
+        p= society.about_us_text
+        +societyTags(society)
+        a.btn(href=(societyBasePath || "/preview/societies") + "/" + society.society_id) View Society
+        button.btn Join Society

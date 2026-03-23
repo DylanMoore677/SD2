@@ -1,0 +1,23 @@
+doctype html
+html(lang="en")
+  head
+    //- Shared metadata and stylesheet link used by every page template.
+    meta(charset="UTF-8")
+    title Society Hub
+    link(rel="stylesheet", href="/style.css")
+  body
+    //- Global navigation stays in the layout so new pages inherit the same header automatically.
+    nav.navbar
+      div.logo Society Hub
+      ul.nav-links
+        li: a(href="/") Home
+        li: a(href="/preview/profile/1") Profile
+        li: a(href="/preview/societies") Societies
+        li: a(href="/preview/users") Users
+        li: a(href="/login") Login
+    main.content
+      //- Child views inject their page-specific content into this shared content area.
+      block content
+    //- Shared footer keeps the site framing consistent across all views.
+    footer.footer
+      p 2026 Society Hub

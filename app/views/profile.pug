@@ -1,43 +1,115 @@
 extends layout
-
+include includes/ui.pug
 
 block content
-  //- Profile card groups the prototype notice and the user's visible profile details in one focused panel.
-  div.profile-container
-    //- This notice sets expectation that the page is a frontend prototype until live data is fully wired in.
-    if showPrototypeNotice
-      p.notice This profile page is currently a prototype. Some details are placeholder content and will be connected to live user data later.
+  - var fullName = [user && user.first_name, user && user.last_name].filter(Boolean).join(" ");
+  - var initials = (((user && user.first_name ? user.first_name.charAt(0) : "") + (user && user.last_name ? user.last_name.charAt(0) : "")) || "SH").toUpperCase();
+  - var favouriteCount = user && user.favorite_societies && user.favorite_societies.length ? user.favorite_societies.length : 0;
+  - var joinedCount = user && user.joined_societies && user.joined_societies.length ? user.joined_societies.length : 0;
+  - var recentStudentEvents = typeof recentStudentEvents !== 'undefined' ? recentStudentEvents : [];
 
-    //- Core identity details stay at the top so the page reads like a standard user profile.
-    h1 #{user.first_name} #{user.last_name}'s Profile
-    img.profile-pic(src="https://via.placeholder.com/150", alt="Profile Picture")
-    p Full name: #{user.first_name} #{user.last_name}
-    if user.student_id
-      p ID: #{user.student_id}
-    p Email: #{user.email}
+  if showPrototypeNotice
+    p.notice This profile page is currently a prototype. Some details are placeholder content and will be connected to live user data later.
 
-    //- Bio section gives the page a dedicated area for user-specific background information.
-    div.bio-section
-      h3 About Me
-      p Student at Roehampton University
+  +pageHeader("Student Profile", "Keep your student account, joined societies, and future activity in one easy-to-scan place.", fullName || "Student")
+    a.btn.btn-primary(href="/preview/societies") Browse Societies
+    button.btn.btn-outline(type="button") Edit Profile
 
-    //- Favorite societies show the interests this prototype user would likely follow most closely.
-    div.bio-section
-      h3 Favorite Societies
-      if user.favorite_societies && user.favorite_societies.length
-        div.tag-list
-          each society in user.favorite_societies
-            span.tag= society
+  section.section-block
+    .split-layout
+      section.section-card
+        .section-heading
+          p.eyebrow Profile Summary
+          h2 Your account at a glance
+          p Keep the core account information visible so your profile remains a useful home for the rest of the student journey.
+        .profile-summary
+          span.profile-avatar(aria-hidden="true")= initials
+          div
+            h2= fullName || "Student Profile"
+            p.card-subtitle= user && user.email ? user.email : "Email not available yet"
+        dl.detail-list
+          .detail-row
+            dt Student ID
+            dd= user && user.student_id ? user.student_id : "Not provided"
+          .detail-row
+            dt Email
+            dd= user && user.email ? user.email : "Not provided"
+          .detail-row
+            dt Account type
+            dd Student
+        p.card-text Student at Roehampton University.
+        +statsGrid
+          +statCard(user && user.student_id ? user.student_id : "ID", "Student reference", "The current profile route still uses the existing student id from the backend.")
+          +statCard(favouriteCount, "Favourite societies", "This count updates automatically whenever favourite society data is passed into the template.")
+          +statCard(joinedCount, "Joined societies", "Membership totals can appear here without any route or controller changes.")
+
+      aside.sidebar-stack
+        section.section-card
+          .section-heading
+            p.eyebrow Account Actions
+            h2 Manage your account
+            p Keep the most important student actions grouped together in one clear area.
+          .btn-row
+            button.btn.btn-outline(type="button") Update Email
+            button.btn.btn-outline(type="button") Manage Memberships
+            a.btn.btn-soft(href="/preview/societies") Browse More Societies
+
+        section.section-card
+          .section-heading
+            p.eyebrow Student Guide
+            h2 What to do next
+            p This layout stays ready for profile editing and membership tools without needing another restructure later.
+          .flow-grid
+            +flowStep("1", "Keep details current", "Future editing controls can live here while the account summary remains easy to scan.")
+            +flowStep("2", "Track memberships", "Joined societies can stay visible below as soon as that data is available in the template.")
+            +flowStep("3", "Return to discovery", "Use the societies page whenever you want to browse more communities or revisit one later.")
+
+  section.section-block
+    .section-heading
+      p.eyebrow Joined Societies
+      h2 Societies connected to your profile
+      p Keep joined societies visible so the student profile remains a useful home base.
+    +cardGrid(2)
+      section.section-card
+        .section-heading
+          p.eyebrow Favourite Societies
+          h3 Societies you want to revisit
+          p Keep this area ready for societies you want to come back to quickly.
+        if user.favorite_societies && user.favorite_societies.length
+          .tag-list
+            each society in user.favorite_societies
+              span.tag= society
+        else
+          p.empty-copy Favourite societies will appear here when that data is available.
+
+      section.section-card
+        .section-heading
+          p.eyebrow Joined Memberships
+          h3 Societies you have joined
+          p This section is reserved for active memberships so you can see your communities at a glance.
+        if user.joined_societies && user.joined_societies.length
+          .tag-list
+            each society in user.joined_societies
+              span.tag= society
+        else
+          p.empty-copy Membership data will appear here once joined societies are passed into the template.
+
+  section.section-block
+    .section-heading
+      p.eyebrow Recent Student Activity
+      h2 Recent RSVPs and events
+      p This section can show current event participation when that data is passed into the profile template.
+    .feed-stack
+      if recentStudentEvents.length
+        each item in recentStudentEvents
+          article.event-card.feed-card
+            p.card-kicker= item.type || "Event"
+            h3.card-title= item.title || "Student activity"
+            p.card-text= item.description || item.content || "Additional student activity details will appear here when they are available."
+            p.feed-meta= item.event_date || item.created_at || "Upcoming activity"
       else
-        p No favorite societies added yet.
-
-    //- Joined societies separate active memberships from general interests.
-    div.bio-section
-      h3 Joined Societies
-      if user.joined_societies && user.joined_societies.length
-        div.tag-list
-          each society in user.joined_societies
-            span.tag= society
-      else
-        p No joined societies added yet.
-
+        article.event-card.feed-card
+          p.card-kicker RSVP Preview
+          h3.card-title Recent RSVP and event activity will appear here
+          p.card-text This space is reserved for future event participation details without changing the backend in this step.
+          p.feed-meta Placeholder content

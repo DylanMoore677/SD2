@@ -1,52 +1,115 @@
 extends layout
 include includes/society-tags.pug
+include includes/ui.pug
 
 block content
-  //- Detail container presents one society with its main actions and supporting information.
-  div.profile-container
-    if prototypeMessage
-      p.notice= prototypeMessage
-    //- Back link returns the user to the listing without relying on browser history.
-    a.btn(href=(societiesBasePath || "/preview/societies")) Back to Societies
+  - var backPath = societiesBasePath || "/preview/societies";
+  - var formatSocietyName = function(email) {
+  -   var localPart = email ? email.split("@")[0] : "society";
+  -   var words = localPart.split(/[._-]/).filter(Boolean).map(function(word) {
+  -     return word.charAt(0).toUpperCase() + word.slice(1);
+  -   });
+  -   return (words.join(" ") || "Society") + " Society";
+  - };
+  - var societyName = formatSocietyName(society && society.email);
+  - var memberCount = members ? members.length : 0;
+  - var previewMembers = members ? members.slice(0, 4) : [];
+  - var recentUpdates = typeof societyUpdates !== 'undefined' ? societyUpdates : [];
 
-    //- Primary society summary keeps the most important details visible at the top of the page.
-    h1= society.email
-    p= society.about_us_text
-    +societyTags(society)
-    button.btn Join Society
-    button.btn RSVP to Event
+  if prototypeMessage
+    p.notice= prototypeMessage
 
-    //- Static detail block is the place to expand key society metadata later.
-    div.bio-section
-      h3 Society Details
-      p Email: #{society.email}
-      p Members: #{members.length}
+  +pageHeader(societyName, society && society.about_us_text ? society.about_us_text : "Use this page to understand the society, preview the community, and decide whether you would like to join.", "Society Page")
+    a.btn.btn-outline(href=backPath) Back to Societies
+    button.btn.btn-primary(type="button") Join Society
+    button.btn.btn-soft(type="button") Save for Later
 
-    //- Categories make it easier to scan what type of community the society belongs to.
-    div.bio-section
-      h3 Tags and Categories
-      +societyTags(society)
+  section.section-block
+    .split-layout
+      section.section-card
+        .section-heading
+          p.eyebrow Society Description
+          h2 Learn what this society is about
+          p The description area gives students a clearer sense of the community before they decide to join.
+        p.card-text= society && society.about_us_text ? society.about_us_text : "A fuller society description can appear here once more content is available."
 
-    //- Members are hidden by default so the page stays compact until the user asks to see them.
-    div.bio-section
-      button.btn(onclick="toggleMembers()") View Members
-      div#members-list(style="display:none")
-        h3 Members
-        if members.length === 0
-          p No members yet
-        else
-          each member in members
-            div.user-card
-              p #{member.first_name} #{member.last_name}
-              p= member.email
+        section.section-card.subsection-card
+          .section-heading
+            p.eyebrow Recent Activity
+            h3 Recent posts and events
+            p This section is ready for student-facing updates from the society.
+          .feed-stack
+            if recentUpdates.length
+              each item in recentUpdates
+                article.event-card.feed-card
+                  p.card-kicker= item.type || "Update"
+                  h3.card-title= item.title || item.society_name || "Society update"
+                  p.card-text= item.content || item.description || "More detail will appear here when society activity data is available."
+                  p.feed-meta= item.created_at || item.event_date || "Recent activity"
+            else
+              article.event-card.feed-card
+                p.card-kicker Announcement
+                h3.card-title Recent posts will appear here
+                p.card-text Student-facing society posts can be shown in this area once that content is available.
+                p.feed-meta Placeholder content
+              article.event-card.feed-card
+                p.card-kicker Event
+                h3.card-title Upcoming events will appear here
+                p.card-text Event cards can show dates, locations, and RSVP details when event data is available.
+                p.feed-meta Placeholder content
 
-    script.
-      // Toggle the members list without leaving the detail page.
-      function toggleMembers() {
-        var list = document.getElementById('members-list');
-        if (list.style.display === 'none') {
-          list.style.display = 'block';
-        } else {
-          list.style.display = 'none';
-        }
-      }
+      aside.sidebar-stack
+        section.section-card
+          .section-heading
+            p.eyebrow Quick Details
+            h2 Society snapshot
+            p Keep the most important details visible in a compact sidebar.
+          dl.detail-list
+            .detail-row
+              dt Society name
+              dd= societyName
+            .detail-row
+              dt Contact email
+              dd= society && society.email ? society.email : "Not provided yet"
+            .detail-row
+              dt Members
+              dd= memberCount
+          .tag-stack
+            h3 Tags and categories
+            +societyTags(society)
+
+        section.section-card
+          .section-heading
+            p.eyebrow Join This Society
+            h2 Ready to get involved?
+            p Keep the main student action visible so the page supports quick decisions.
+          .btn-row
+            button.btn.btn-primary(type="button") Join Society
+            button.btn.btn-outline(type="button") Save for Later
+
+        section.section-card
+          .section-heading
+            p.eyebrow Community Preview
+            h2 Current members
+            p Students can preview the community using the member data already provided by the route.
+          if memberCount === 0
+            +emptyState("No members yet", "Member information will appear here once students join this society.")
+          else
+            .feed-stack
+              each member in previewMembers
+                article.info-card.feed-card
+                  p.card-kicker Student member
+                  h3.card-title #{member.first_name} #{member.last_name}
+                  p.card-text Student ID: #{member.student_id}
+                  p.feed-meta= member.email
+                  a.btn.btn-outline(href="/preview/profile/" + member.student_id) View Profile
+
+  section.section-block
+    .section-heading
+      p.eyebrow Student Checklist
+      h2 Questions to ask before joining
+      p Keep the next student steps clear while future memberships and event data are added later.
+    +cardGrid(3)
+      +sharedCard("info-card", "Fit", "Does this match your interests?", "Use the description and tags to decide whether the society reflects what you want from university life.")
+      +sharedCard("info-card", "Activity", "Would you like updates from this group?", "This layout is prepared for future announcements, event listings, and student-facing posts.")
+      +sharedCard("info-card", "Membership", "Do you want it on your profile?", "Once joined society data is available, it can flow back into the student profile page without changing the layout.")

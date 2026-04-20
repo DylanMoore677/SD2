@@ -1,23 +1,29 @@
 doctype html
 html(lang="en")
   head
-    //- Shared metadata and stylesheet link used by every page template.
     meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
     title Society Hub
+    link(rel="preconnect", href="https://fonts.googleapis.com")
+    link(rel="preconnect", href="https://fonts.gstatic.com", crossorigin="crossorigin")
+    link(rel="stylesheet", href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap")
     link(rel="stylesheet", href="/style.css")
   body
-    //- Global navigation stays in the layout so new pages inherit the same header automatically.
-    nav.navbar
-      div.logo Society Hub
-      ul.nav-links
-        li: a(href="/") Home
-        li: a(href="/preview/profile/1") Profile
-        li: a(href="/preview/societies") Societies
-        li: a(href="/preview/users") Users
-        li: a(href="/login") Login
-    main.content
-      //- Child views inject their page-specific content into this shared content area.
-      block content
-    //- Shared footer keeps the site framing consistent across all views.
-    footer.footer
-      p 2026 Society Hub
+    .page-shell.site-shell
+      header.site-header
+        .page-container
+          nav.navbar(aria-label="Primary navigation")
+            a.logo(href="/") Society Hub
+            ul.nav-links
+              li: a(href="/") Home
+              li: a(href="/preview/societies") Societies
+              li: a(href="/preview/profile/1") Profile
+              li: a(href="/preview/users") Users
+              li: a(href="/login") Login
+      main.content
+        .page-container.content-stack
+          block content
+      footer.footer.site-footer
+        .page-container
+          p Society Hub frontend prototype focused on student and organiser flows.
+    script(src="/site.js")

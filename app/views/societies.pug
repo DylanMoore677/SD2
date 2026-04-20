@@ -1,23 +1,78 @@
 extends layout
 include includes/society-tags.pug
+include includes/ui.pug
 
 block content
-  //- Main listing container keeps the societies page aligned with the shared profile-style card layout.
-  div.profile-container
-    h1 All Societies
-    if prototypeMessage
-      p.notice= prototypeMessage
+  - var listBasePath = societyBasePath || "/preview/societies";
+  - var formatSocietyName = function(email) {
+  -   var localPart = email ? email.split("@")[0] : "society";
+  -   var words = localPart.split(/[._-]/).filter(Boolean).map(function(word) {
+  -     return word.charAt(0).toUpperCase() + word.slice(1);
+  -   });
+  -   return (words.join(" ") || "Society") + " Society";
+  - };
 
-    //- Search UI sits above the listing so filtering can be added later without changing the page structure.
-    div.search-bar
-      input(type="text", placeholder="Search societies...")
-      button.btn Search
+  +pageHeader("Browse Societies", "Search the directory, compare each society at a glance, and open a full page before deciding whether to join.", "Student Directory")
+    a.btn.btn-primary(href="/preview/profile/1") View My Profile
+    a.btn.btn-outline(href="/") Back Home
 
-    //- Each society card gives a short summary and a route into the individual detail page.
-    each society in societies
-      div.society-card
-        h2= society.email
-        p= society.about_us_text
-        +societyTags(society)
-        a.btn(href=(societyBasePath || "/preview/societies") + "/" + society.society_id) View Society
-        button.btn Join Society
+  if prototypeMessage
+    p.notice= prototypeMessage
+
+  section.section-block(data-filter-root data-query-param="q")
+    .form-shell
+      .section-heading
+        p.eyebrow Search and Filter
+        h2 Find a society that fits you
+        p Use the current search field now and keep the additional filter controls ready for future frontend refinement.
+
+      .filter-bar
+        .filter-grid
+          .form-group.filter-field
+            label(for="society-search") Search societies
+            input#society-search.form-input(type="search", name="q", placeholder="Search by name, keyword, or category" data-filter-input)
+          .form-group.filter-field
+            label(for="category-filter") Category
+            select#category-filter.form-select
+              option All categories
+              option Technology
+              option Arts
+              option Sports
+              option Community
+          .form-group.filter-field
+            label(for="sort-filter") Sort by
+            select#sort-filter.form-select
+              option Most relevant
+              option A to Z
+              option Recently updated
+        .btn-row
+          button.btn.btn-primary(type="button" data-filter-trigger) Apply Search
+          a.btn.btn-outline(href="/preview/societies") Reset
+
+      p.helper-text Showing #[span(data-filter-count)= societies.length] of #{societies.length} societies
+
+    .card-grid.cols-3
+      each society in societies
+        - var societyName = formatSocietyName(society.email);
+        - var searchText = [societyName, society.email, society.about_us_text, society.tags, society.categories, society.tag_list].filter(Boolean).join(" ");
+        article.society-card(data-filter-item data-search-text=searchText)
+          p.card-kicker Society
+          h3.card-title= societyName
+          p.card-text= society.about_us_text || "More information about this society will be shown here when it is available."
+          +societyTags(society)
+          .btn-row
+            a.btn.btn-primary(href=listBasePath + "/" + society.society_id) View Society
+            button.btn.btn-outline(type="button") Join Society
+
+    div(hidden data-filter-empty)
+      +emptyState("No societies matched your search", "Try a different keyword or clear the field to see the full list again.")
+
+  section.section-block
+    .section-heading
+      p.eyebrow Student Guide
+      h2 What to look for before joining
+      p Keep the decision simple by comparing each society summary, its tags, and what the full society page offers.
+    +cardGrid(3)
+      +sharedCard("info-card", "Summary", "Read the short description", "Use the short description to quickly understand what the society is about before opening the full page.")
+      +sharedCard("info-card", "Details", "Open the full society page", "The single society page gives you a clearer overview, quick details, and room for recent activity.")
+      +sharedCard("info-card", "Next Step", "Join when you are ready", "The main student action stays visible on both the browse page and the single society page.")

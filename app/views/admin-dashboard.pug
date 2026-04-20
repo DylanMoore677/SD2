@@ -1,0 +1,81 @@
+extends layout
+include includes/ui.pug
+
+block content
+  - var postsCount = typeof postsCount !== "undefined" ? postsCount : 12;
+  - var eventsCount = typeof eventsCount !== "undefined" ? eventsCount : 4;
+  - var membersCount = typeof membersCount !== "undefined" ? membersCount : 38;
+  - var rsvpCount = typeof rsvpCount !== "undefined" ? rsvpCount : 16;
+  - var quickItems = typeof quickItems !== "undefined" ? quickItems : [];
+
+  +pageHeader("Admin Dashboard", "Monitor society activity, keep the main organiser tools close by, and move through admin tasks from one clear dashboard workspace.", "Admin / Organiser")
+    a.btn.btn-primary(href="/preview/users") Open Member Directory
+    a.btn.btn-outline(href="/login") Back to Access
+
+  section.section-block
+    +dashboardLayout()
+      +dashboardSidebar("Admin Navigation", "The dashboard keeps the organiser side more structured than the student flow while staying simple to use.")
+        +dashboardNav([
+          { label: "Overview", href: "#overview", active: true },
+          { label: "Quick Actions", href: "#quick-actions" },
+          { label: "Management", href: "#management" },
+          { label: "Member Tools", href: "#member-tools" }
+        ])
+        .tag-stack
+          h3 Focus areas
+          .tag-list
+            span.tag Posts
+            span.tag Events
+            span.tag Members
+            span.tag RSVPs
+
+      main.dashboard-main
+        section.section-card#overview
+          .section-heading
+            p.eyebrow Dashboard Overview
+            h2 Society activity at a glance
+            p Keep the most important organiser metrics visible first so the dashboard feels like a practical workspace.
+          +statsGrid
+            +statCard(postsCount, "Posts", "Track announcements, polls, and event posts from one top-level view.")
+            +statCard(eventsCount, "Events", "Keep upcoming event planning close to the rest of the organiser workflow.")
+            +statCard(membersCount, "Members", "Review the size of the community before moving into member tools.")
+            +statCard(rsvpCount, "RSVPs", "Stay ready for attendance tracking when RSVP data is available.")
+
+        section.section-card#quick-actions
+          .section-heading
+            p.eyebrow Quick Actions
+            h2 Move quickly between admin tasks
+            p Use clear action cards instead of crowded controls so the dashboard stays easy to understand.
+          +cardGrid(2)
+            +sharedCard("management-card", "Publishing", "Create a new post", "Start an announcement, poll, or event draft from a dedicated organiser publishing flow.")
+              button.btn.btn-outline(type="button") Create Post
+            +sharedCard("management-card", "Members", "Review student records", "Jump into the member directory when you need to inspect student details or prepare follow-up.")
+              a.btn.btn-outline(href="/preview/users") Open Directory
+            +sharedCard("management-card", "Society", "Manage society profile", "Update how your society is presented from a cleaner admin-facing edit page.")
+              button.btn.btn-outline(type="button") Edit Profile
+            +sharedCard("management-card", "Attendance", "Review RSVP activity", "Keep attendance management visible alongside the rest of the organiser workflow.")
+              button.btn.btn-outline(type="button") View RSVPs
+
+        section.section-card#management
+          .section-heading
+            p.eyebrow Admin Structure
+            h2 Keep the organiser workflow role-based
+            p The dashboard is designed to separate admin controls from the public student journey without becoming visually heavy.
+          .flow-grid
+            +flowStep("1", "Check the overview", "Start with the high-level counts so you know where your attention is needed.")
+            +flowStep("2", "Choose the next management task", "Move into posts, society settings, members, or RSVP review from the quick action cards.")
+            +flowStep("3", "Return to the dashboard", "Use the sidebar to move back into the main admin overview whenever needed.")
+
+        section.section-card#member-tools
+          .section-heading
+            p.eyebrow Member Tools
+            h2 Workspace areas connected to the dashboard
+            p Keep the organiser side feeling joined-up by surfacing the next admin destinations clearly.
+          +cardGrid(3)
+            if quickItems.length
+              each item in quickItems
+                +sharedCard("dashboard-card", item.kicker || "Admin", item.title || "Dashboard item", item.description || "Additional admin detail will appear here when quick action data is available.")
+            else
+              +sharedCard("dashboard-card", "Directory", "Member directory", "Use the existing member directory to search student records and open profile pages.")
+              +sharedCard("dashboard-card", "Publishing", "Create post flow", "Announcements, events, and polls can all be started from a dedicated organiser post page.")
+              +sharedCard("dashboard-card", "Society Profile", "Edit society details", "Keep the public-facing society information accurate from a separate admin edit page.")

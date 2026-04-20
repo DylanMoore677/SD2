@@ -1,0 +1,73 @@
+extends layout
+include includes/ui.pug
+
+block content
+  - var formatSocietyName = function(email) {
+  -   var localPart = email ? email.split("@")[0] : "society";
+  -   var words = localPart.split(/[._-]/).filter(Boolean).map(function(word) {
+  -     return word.charAt(0).toUpperCase() + word.slice(1);
+  -   });
+  -   return (words.join(" ") || "Society") + " Society";
+  - };
+  - var displayName = society && society.email ? formatSocietyName(society.email) : "Society Profile";
+
+  +pageHeader("Edit Society Profile", "Update the public-facing society details from one clean admin form without changing backend behaviour.", displayName)
+    button.btn.btn-primary(type="button") Save Changes
+    button.btn.btn-outline(type="button") Cancel
+
+  section.section-block
+    +dashboardLayout()
+      +dashboardSidebar("Profile Edit Navigation", "Keep the form structured by separating the main society details from the save actions.")
+        +dashboardNav([
+          { label: "Details", href: "#details", active: true },
+          { label: "Image", href: "#image" },
+          { label: "Actions", href: "#actions" }
+        ])
+        .tag-stack
+          h3 Editable areas
+          .tag-list
+            span.tag Name
+            span.tag Contact
+            span.tag Description
+            span.tag Image
+
+      main.dashboard-main
+        section.form-shell#details
+          .section-heading
+            p.eyebrow Society Details
+            h2 Edit the main profile information
+            p Reuse the society information that already exists in the frontend, and leave the rest as clean editable placeholders.
+          form.form-stack
+            +formInput("display-name", "Display name", "text", "Enter a society display name", displayName)
+            +formInput("contact-email", "Contact email", "email", "Enter a contact email", society && society.email ? society.email : "")
+            +formTextarea("society-description", "Description", "Write a clear description of the society", society && society.about_us_text ? society.about_us_text : "")
+
+        section.form-shell#image
+          .section-heading
+            p.eyebrow Image and Contact
+            h2 Keep media and profile details together
+            p This section is ready for image and contact-related frontend controls while remaining coursework-appropriate.
+          .filter-grid
+            .form-group.filter-field
+              label(for="logo-url") Image URL
+              input#logo-url.form-input(type="text", placeholder="Add an image URL", value=society && society.logo_url ? society.logo_url : "")
+            .form-group.filter-field
+              label(for="contact-link") Contact link
+              input#contact-link.form-input(type="text", placeholder="Add a contact or social link")
+            .form-group.filter-field
+              label(for="visibility-status") Visibility
+              select#visibility-status.form-select
+                option Public
+                option Draft
+                option Review needed
+          +formTextarea("society-notes", "Internal notes", "Add organiser notes for the society profile if needed")
+
+        section.section-card#actions
+          .section-heading
+            p.eyebrow Save Actions
+            h2 Finalise profile updates
+            p Keep the save and cancel controls grouped clearly at the end of the page.
+          .btn-row
+            button.btn.btn-primary(type="button") Save Changes
+            button.btn.btn-outline(type="button") Cancel
+            button.btn.btn-soft(type="button") Preview Public Profile

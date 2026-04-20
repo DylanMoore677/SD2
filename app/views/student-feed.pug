@@ -1,0 +1,71 @@
+extends layout
+include includes/ui.pug
+
+block content
+  - var feedItems = typeof feedItems !== 'undefined' ? feedItems : [];
+  - var joinedSocieties = typeof joinedSocieties !== 'undefined' ? joinedSocieties : [];
+
+  +pageHeader("My News", "See recent posts and event updates from the societies you have joined in one clean, student-friendly feed.", "Student Feed")
+    a.btn.btn-primary(href="/preview/societies") Browse Societies
+    a.btn.btn-outline(href="/preview/profile/1") View Profile
+
+  section.section-block
+    .split-layout
+      section.section-card
+        .section-heading
+          p.eyebrow Joined Society Feed
+          h2 Latest posts and events from your communities
+          p Feed cards are stacked for easy scanning and can display updates from joined societies when that data is available.
+        .feed-stack
+          if feedItems.length
+            each item in feedItems
+              article.event-card.feed-card
+                p.card-kicker= item.type || "Update"
+                h3.card-title= item.title || item.society_name || "Society update"
+                p.card-text= item.content || item.description || "More detail will appear here when student feed content is available."
+                p.feed-meta
+                  | #{item.society_name || "Joined society"}
+                  if item.created_at || item.event_date
+                    |  • #{item.created_at || item.event_date}
+                .btn-row
+                  a.btn.btn-outline(href="/preview/societies") Browse Societies
+          else
+            article.event-card.feed-card
+              p.card-kicker Announcement
+              h3.card-title Feed posts will appear here
+              p.card-text Society announcements can stack here once joined society feed data is passed into the template.
+              p.feed-meta Placeholder content
+            article.event-card.feed-card
+              p.card-kicker Event
+              h3.card-title Upcoming events will appear here
+              p.card-text Event updates can show dates, descriptions, and future RSVP actions when that information becomes available.
+              p.feed-meta Placeholder content
+            article.event-card.feed-card
+              p.card-kicker Poll
+              h3.card-title Poll updates can appear here too
+              p.card-text The feed layout is ready for different post types while keeping the student experience easy to scan.
+              p.feed-meta Placeholder content
+
+      aside.sidebar-stack
+        section.section-card
+          .section-heading
+            p.eyebrow Joined Societies
+            h2 Feed sources
+            p This sidebar can show the societies currently contributing items to the student feed.
+          if joinedSocieties.length
+            .tag-list
+              each society in joinedSocieties
+                - var societyLabel = typeof society === "string" ? society : (society.name || society.email || society.title || "Joined society");
+                span.tag= societyLabel
+          else
+            p.empty-copy Joined societies will appear here when that data is available.
+
+        section.section-card
+          .section-heading
+            p.eyebrow Student Tips
+            h2 How to use My News
+            p Keep the feed page simple so students can scan updates quickly.
+          .flow-grid
+            +flowStep("1", "Scan the newest cards", "Read through the latest stacked cards from your joined societies.")
+            +flowStep("2", "Look for event details", "Use event-focused cards to spot dates, locations, and future RSVP actions.")
+            +flowStep("3", "Go back to discovery", "Browse more societies whenever you want to add new communities to your student experience.")

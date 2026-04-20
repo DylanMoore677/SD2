@@ -1,0 +1,134 @@
+mixin pageHero(eyebrow, title, copy)
+  header.page-header.page-hero
+    if eyebrow
+      p.eyebrow= eyebrow
+    h1.page-title= title
+    if copy
+      p.page-subtitle.hero-copy= copy
+    if block
+      .btn-row.hero-actions
+        block
+
+mixin statCard(value, label, helper)
+  article.stat-card
+    p.stat-label= label
+    p.stat-value= value
+    if helper
+      p.stat-helper= helper
+
+mixin infoCard(title, body, tone)
+  article.info-card(class=tone ? "is-" + tone : "")
+    h3.card-title= title
+    if body
+      p.card-text= body
+    if block
+      .card-actions
+        block
+
+mixin flowStep(number, title, body)
+  article.flow-step
+    span.flow-step-number= number
+    div
+      h3= title
+      p= body
+
+mixin detailList(items)
+  dl.detail-list
+    each item in items
+      .detail-row
+        dt= item.label
+        dd= item.value
+
+mixin emptyState(title, body)
+  section.empty-state
+    h3.card-title= title
+    p.card-text= body
+
+mixin pageHeader(title, subtitle, eyebrow)
+  header.page-header
+    if eyebrow
+      p.eyebrow= eyebrow
+    h1.page-title= title
+    if subtitle
+      p.page-subtitle= subtitle
+    if block
+      .btn-row
+        block
+
+mixin sectionBlock(extraClasses)
+  section.section-block(class=extraClasses)
+    .page-container
+      if block
+        block
+
+mixin cardGrid(columns)
+  - var gridClass = columns ? "cols-" + columns : "";
+  .card-grid(class=gridClass)
+    if block
+      block
+
+mixin sharedCard(type, kicker, title, body, tone)
+  - var cardType = type || "info-card";
+  article(class=cardType + (tone ? " is-" + tone : ""))
+    if kicker
+      p.card-kicker= kicker
+    if title
+      h3.card-title= title
+    if body
+      p.card-text= body
+    if block
+      .card-actions
+        block
+
+mixin buttonRow()
+  .btn-row
+    if block
+      block
+
+mixin splitLayout()
+  .split-layout
+    if block
+      block
+
+mixin dashboardLayout()
+  .dashboard-layout
+    if block
+      block
+
+mixin dashboardSidebar(title, body)
+  aside.dashboard-sidebar
+    if title
+      h3.card-title= title
+    if body
+      p.card-text= body
+    if block
+      block
+
+mixin dashboardNav(items)
+  nav.dashboard-nav
+    each item in items
+      a(href=item.href, class=item.active ? "is-active" : false)= item.label
+
+mixin formShell(title, body)
+  .form-shell
+    if title
+      h2.card-title= title
+    if body
+      p.card-text= body
+    if block
+      block
+
+mixin formInput(id, label, type, placeholder, value)
+  .form-group
+    label(for=id)= label
+    input.form-input(id=id, type=type || "text", placeholder=placeholder, value=value || "")
+
+mixin formTextarea(id, label, placeholder, value)
+  .form-group
+    label(for=id)= label
+    textarea.form-textarea(id=id, placeholder=placeholder)= value || ""
+
+mixin statsGrid()
+  .stats-grid
+    if block
+      block

@@ -1,15 +1,80 @@
 extends layout
+include includes/ui.pug
+include includes/society-tags.pug
 
 block content
-  //- Landing copy introduces the platform before the user moves into the preview flows.
-  h1 Welcome to Student Society Hub
-  p Find and join societies at your university
+  - var featuredSocieties = typeof featuredSocieties !== 'undefined' ? featuredSocieties : [];
+  - var latestUpdates = typeof latestUpdates !== 'undefined' ? latestUpdates : [];
 
-  //- Search controls are currently visual only and act as the homepage search prototype.
-  div.search-bar
-    input(type="text", placeholder="Search societies...")
-    button.btn Search
+  +pageHeader("Welcome to Society Hub", "Discover societies across campus, find communities that match your interests, and keep up with student activity in one place.", "Student Home")
+    a.btn.btn-primary(href="/preview/societies") Browse Societies
+    a.btn.btn-outline(href="/login") Login
 
-  br
-  //- Primary call to action moves the user into the societies listing page.
-  a(href="/preview/societies") View All Societies
+  section.section-block
+    .split-layout
+      section.section-card
+        .section-heading
+          p.eyebrow Student Journey
+          h2 A clear place to start
+          p Begin with the society directory, open any society page that looks interesting, and return to your student profile whenever you want to review your details.
+        .btn-row
+          a.btn.btn-primary(href="/preview/societies") Explore Societies
+          a.btn.btn-outline(href="/preview/profile/1") View My Profile
+        p.helper-text The shared frontend system keeps the student pages clean and easy to scan without changing the backend.
+
+      section.section-card
+        .section-heading
+          p.eyebrow What You Can Do
+          h2 Move through the student flow with ease
+          p Each page is now built around browsing, reading, and joining rather than admin management.
+        .flow-grid
+          +flowStep("1", "Browse societies", "Search the available list and compare society summaries before making any decisions.")
+          +flowStep("2", "Open a society page", "Read the society description, review quick details, and preview recent activity.")
+          +flowStep("3", "Keep your profile ready", "Use the student profile page to stay organised as memberships and events are added later.")
+
+  section.section-block
+    .section-heading
+      p.eyebrow Featured Societies
+      h2 Societies to explore first
+      p This section reuses homepage highlight data when it exists, and otherwise keeps a clear placeholder layout instead of inventing backend content.
+    +cardGrid(3)
+      if featuredSocieties.length
+        each society in featuredSocieties
+          - var featuredPath = society && society.society_id ? "/preview/societies/" + society.society_id : "/preview/societies";
+          - var localPart = society && society.email ? society.email.split("@")[0] : "society";
+          - var featuredName = localPart.split(/[._-]/).filter(Boolean).map(function(word) { return word.charAt(0).toUpperCase() + word.slice(1); }).join(" ") || "Society";
+          article.society-card
+            p.card-kicker Featured society
+            h3.card-title= featuredName + " Society"
+            p.card-text= society.about_us_text || "More information about this society will appear here when highlight data is available."
+            +societyTags(society)
+            .btn-row
+              a.btn.btn-outline(href=featuredPath) View Society
+      else
+        +sharedCard("society-card", "Featured", "Featured societies will appear here", "Use the browse page for now to explore the current list of societies already available in the app.")
+          a.btn.btn-outline(href="/preview/societies") Browse Societies
+        +sharedCard("society-card", "Student Discovery", "Highlight cards can be added later", "This section is ready for featured society content without any backend changes in this step.")
+          a.btn.btn-outline(href="/preview/societies") View Directory
+        +sharedCard("society-card", "Start Exploring", "The main student flow is already ready", "Students can already move from home to browse, then into a full society page, and on to their profile.")
+          a.btn.btn-outline(href="/preview/profile/1") Open Profile
+
+  section.section-block
+    .section-heading
+      p.eyebrow Latest Activity
+      h2 Latest events and posts preview
+      p This area is ready for student-facing updates from societies, while falling back to simple placeholders when no feed data is passed in.
+    .card-grid.cols-2
+      if latestUpdates.length
+        each item in latestUpdates
+          article.event-card
+            p.card-kicker= item.type || "Update"
+            h3.card-title= item.title || item.society_name || "Society update"
+            p.card-text= item.content || item.description || "More update detail will appear here when latest activity data is available."
+            p.feed-meta= item.created_at || item.event_date || "Recent activity"
+            .btn-row
+              a.btn.btn-outline(href="/preview/societies") Browse Societies
+      else
+        +sharedCard("event-card", "Events Preview", "Latest events will appear here", "Upcoming events can be previewed here with dates, summaries, and future RSVP prompts when homepage feed data exists.")
+          a.btn.btn-outline(href="/preview/societies") Browse Societies
+        +sharedCard("event-card", "Posts Preview", "Latest posts will appear here", "Student-facing society posts can sit here later without changing the shared homepage layout.")
+          a.btn.btn-outline(href="/preview/profile/1") View Profile

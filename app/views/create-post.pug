@@ -1,0 +1,92 @@
+extends layout
+include includes/ui.pug
+
+block content
+  - var selectedPostType = typeof selectedPostType !== "undefined" ? selectedPostType : "announcement";
+
+  +pageHeader("Create Post", "Use a structured organiser form to draft announcements, polls, or event posts from one clean publishing page.", "Admin / Organiser")
+    a.btn.btn-primary(href="/login") Back to Admin Access
+    button.btn.btn-outline(type="button") Preview Draft
+
+  section.section-block
+    +dashboardLayout()
+      +dashboardSidebar("Publishing Navigation", "Keep the organiser publishing flow clear by separating post type choice, content fields, and actions.")
+        +dashboardNav([
+          { label: "Post Type", href: "#post-type", active: true },
+          { label: "Post Details", href: "#post-details" },
+          { label: "Actions", href: "#submit-area" }
+        ])
+        .tag-stack
+          h3 Post types
+          .tag-list
+            span.tag Announcement
+            span.tag Event
+            span.tag Poll
+
+      main.dashboard-main
+        section.section-card#post-type
+          .section-heading
+            p.eyebrow Post Type
+            h2 Choose the kind of post you want to create
+            p Keep post types visible at the top of the page so the form stays easy to understand.
+          +cardGrid(3)
+            +sharedCard("management-card", "Announcement", "Share an update", "Use announcement posts for society news, reminders, and general communication.")
+              if selectedPostType === "announcement"
+                p.feed-meta Current selection
+            +sharedCard("management-card", "Event", "Publish an event", "Use event posts when organisers need to highlight dates, locations, and attendance information.")
+              if selectedPostType === "event"
+                p.feed-meta Current selection
+            +sharedCard("management-card", "Poll", "Ask for feedback", "Use poll posts to collect simple responses or opinions from members.")
+              if selectedPostType === "poll"
+                p.feed-meta Current selection
+
+        section.form-shell#post-details
+          .section-heading
+            p.eyebrow Post Details
+            h2 Structured organiser form
+            p The form stays frontend-only, but the layout is ready for whichever post type the organiser chooses.
+          form.form-stack
+            +formInput("post-title", "Post title", "text", "Enter a clear title")
+            .form-group
+              label(for="post-type") Post type
+              select#post-type.form-select
+                option(selected=selectedPostType === "announcement") Announcement
+                option(selected=selectedPostType === "event") Event
+                option(selected=selectedPostType === "poll") Poll
+            .filter-grid
+              .form-group.filter-field
+                label(for="audience-group") Audience
+                select#audience-group.form-select
+                  option All members
+                  option Committee only
+                  option New joiners
+              .form-group.filter-field
+                label(for="publish-status") Status
+                select#publish-status.form-select
+                  option Draft
+                  option Ready to publish
+                  option Scheduled
+              .form-group.filter-field
+                label(for="publish-date") Publish date
+                input#publish-date.form-input(type="text", placeholder="Add a date")
+            +formTextarea("post-summary", "Summary / description", "Write the main content for the post")
+            .filter-grid
+              .form-group.filter-field
+                label(for="event-location") Event location
+                input#event-location.form-input(type="text", placeholder="Add a location if relevant")
+              .form-group.filter-field
+                label(for="event-time") Event time
+                input#event-time.form-input(type="text", placeholder="Add a time if relevant")
+              .form-group.filter-field
+                label(for="poll-options") Poll options
+                input#poll-options.form-input(type="text", placeholder="Add quick poll options if relevant")
+
+        section.section-card#submit-area
+          .section-heading
+            p.eyebrow Submit Area
+            h2 Finalise the organiser draft
+            p Keep the main publishing actions grouped together at the end of the page.
+          .btn-row
+            button.btn.btn-primary(type="button") Save Draft
+            button.btn.btn-outline(type="button") Preview Post
+            button.btn.btn-soft(type="button") Cancel

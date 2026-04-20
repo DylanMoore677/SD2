@@ -1,0 +1,104 @@
+extends layout
+include includes/ui.pug
+
+block content
+  - var overviewStats = typeof overviewStats !== 'undefined' ? overviewStats : [];
+  - var activityItems = typeof activityItems !== 'undefined' ? activityItems : [];
+  - var contentQueue = typeof contentQueue !== 'undefined' ? contentQueue : [];
+
+  +pageHeader("Organiser Dashboard", "See the state of your society at a glance, keep publishing tools close by, and monitor activity from one more dashboard-like workspace.", "Admin / Organiser")
+    a.btn.btn-primary(href="/preview/users") Open Member Directory
+    a.btn.btn-outline(href="/login") Back to Login
+
+  section.section-block
+    +dashboardLayout()
+      +dashboardSidebar("Dashboard Navigation", "This organiser dashboard template is ready for future routes without changing backend logic in this step.")
+        +dashboardNav([
+          { label: "Overview", href: "#overview", active: true },
+          { label: "Publishing", href: "#publishing" },
+          { label: "Activity", href: "#activity" },
+          { label: "Members", href: "#members" }
+        ])
+        .tag-stack
+          h3 Quick focus
+          .tag-list
+            span.tag Dashboard
+            span.tag Content
+            span.tag Members
+            span.tag RSVP
+
+      main.dashboard-main
+        section.section-card#overview
+          .section-heading
+            p.eyebrow Overview
+            h2 Society management snapshot
+            p Keep the top of the organiser dashboard focused on the numbers and priorities that matter first.
+          +statsGrid
+            if overviewStats.length
+              each stat in overviewStats
+                +statCard(stat.value, stat.label, stat.helper)
+            else
+              +statCard("12", "Member updates", "Recent changes to society participation can be summarised here.")
+              +statCard("4", "Draft items", "Announcements, events, and polls waiting to be reviewed can appear here.")
+              +statCard("3", "Upcoming events", "Future organiser event planning can surface in this top summary area.")
+
+        section.section-card#publishing
+          .section-heading
+            p.eyebrow Publishing
+            h2 Announcement, event, and poll tools
+            p Use a dashboard-like action area to keep the main organiser tasks immediately accessible.
+          +cardGrid(3)
+            +sharedCard("management-card", "Announcements", "Create a new announcement", "Draft organiser updates for society members using a simple publishing flow.")
+              button.btn.btn-outline(type="button") Draft Announcement
+            +sharedCard("management-card", "Events", "Plan a new event", "Set up event details and keep future RSVP support close to the same workspace.")
+              button.btn.btn-outline(type="button") Draft Event
+            +sharedCard("management-card", "Polls", "Open a new poll", "Collect member feedback with poll tools once that organiser flow is connected.")
+              button.btn.btn-outline(type="button") Draft Poll
+
+        section.section-card#activity
+          .section-heading
+            p.eyebrow Recent Activity
+            h2 Work queue and organiser updates
+            p Activity cards help organisers scan the latest changes without leaving the dashboard.
+          .feed-stack
+            if activityItems.length
+              each item in activityItems
+                article.event-card.feed-card
+                  p.card-kicker= item.type || "Dashboard update"
+                  h3.card-title= item.title || "Recent organiser activity"
+                  p.card-text= item.description || item.content || "More detail will appear here when organiser activity data is available."
+                  p.feed-meta= item.created_at || "Recent update"
+            else
+              article.event-card.feed-card
+                p.card-kicker Queue
+                h3.card-title Recent organiser updates will appear here
+                p.card-text Publishing changes, RSVP movement, and society notices can all be summarised in this stacked dashboard section.
+                p.feed-meta Placeholder content
+              article.event-card.feed-card
+                p.card-kicker Review
+                h3.card-title Draft items can surface here too
+                p.card-text The organiser dashboard can keep pending tasks visible without needing a separate backend change in this step.
+                p.feed-meta Placeholder content
+
+        section.section-card#members
+          .section-heading
+            p.eyebrow Members
+            h2 Member-related priorities
+            p Keep the member side of the organiser flow connected to the rest of the dashboard.
+          +cardGrid(2)
+            +sharedCard("dashboard-card", "Directory", "Review student records", "Use the member directory to inspect student details and jump into existing student profile pages.")
+              a.btn.btn-outline(href="/preview/users") Open Directory
+            +sharedCard("dashboard-card", "Attendance", "Prepare for RSVP tracking", "This area can grow into organiser-facing attendance planning once RSVP data is available.")
+              button.btn.btn-outline(type="button") View RSVP Overview
+
+        if contentQueue.length
+          section.section-card
+            .section-heading
+              p.eyebrow Content Queue
+              h2 Items waiting for organiser attention
+            .feed-stack
+              each item in contentQueue
+                article.info-card.feed-card
+                  p.card-kicker= item.type || "Queue item"
+                  h3.card-title= item.title || "Pending organiser item"
+                  p.card-text= item.description || "Additional queue details will appear here when content queue data is available."

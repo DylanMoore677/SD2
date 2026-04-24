@@ -2,7 +2,15 @@ extends layout
 include includes/society-tags.pug
 include includes/ui.pug
 
+block pageVars
+  - var pageRole = "student"
+  - var headerRoleLabel = typeof headerRoleLabel !== "undefined" ? headerRoleLabel : "Student"
+  - var logoPath = typeof logoPath !== "undefined" ? logoPath : "/demo/student/"
+  - var studentBasePath = logoPath.replace(/\/$/, "")
+  - var navLinks = typeof navLinks !== "undefined" ? navLinks : [{ label: "Home", href: studentBasePath + "/", exact: true }, { label: "Societies", href: studentBasePath + "/societies/" }, { label: "News", href: studentBasePath + "/feed/" }, { label: "Profile", href: studentBasePath + "/profile/1/", icon: "profile" }]
+
 block content
+  - var societies = typeof societies !== "undefined" ? societies : [];
   - var listBasePath = societyBasePath || "/preview/societies";
   - var formatSocietyName = function(email) {
   -   var localPart = email ? email.split("@")[0] : "society";
@@ -12,67 +20,32 @@ block content
   -   return (words.join(" ") || "Society") + " Society";
   - };
 
-  +pageHeader("Browse Societies", "Search the directory, compare each society at a glance, and open a full page before deciding whether to join.", "Student Directory")
-    a.btn.btn-primary(href="/preview/profile/1") View My Profile
-    a.btn.btn-outline(href="/") Back Home
+  header.page-header.societies-page-header
+    h1.page-title All Societies
+    p.page-subtitle Browse student communities, discover new interests, and open a society to learn more.
 
-  if prototypeMessage
-    p.notice= prototypeMessage
+  section.section-block.societies-search-section(data-filter-root data-query-param="q")
+    .form-shell.search-shell.societies-search-shell
+      p.societies-search-label Search societies
+      .societies-search-row
+        .societies-search-field
+          input#society-search.form-input(type="search", name="q", placeholder="Search by society name or keyword" data-filter-input)
+        button.btn.btn-primary.societies-search-button(type="button" data-filter-trigger) Search
+      p.helper-text.societies-search-count Showing #[span(data-filter-count)= societies.length] of #{societies.length} societies
 
-  section.section-block(data-filter-root data-query-param="q")
-    .form-shell
-      .section-heading
-        p.eyebrow Search and Filter
-        h2 Find a society that fits you
-        p Use the current search field now and keep the additional filter controls ready for future frontend refinement.
-
-      .filter-bar
-        .filter-grid
-          .form-group.filter-field
-            label(for="society-search") Search societies
-            input#society-search.form-input(type="search", name="q", placeholder="Search by name, keyword, or category" data-filter-input)
-          .form-group.filter-field
-            label(for="category-filter") Category
-            select#category-filter.form-select
-              option All categories
-              option Technology
-              option Arts
-              option Sports
-              option Community
-          .form-group.filter-field
-            label(for="sort-filter") Sort by
-            select#sort-filter.form-select
-              option Most relevant
-              option A to Z
-              option Recently updated
-        .btn-row
-          button.btn.btn-primary(type="button" data-filter-trigger) Apply Search
-          a.btn.btn-outline(href="/preview/societies") Reset
-
-      p.helper-text Showing #[span(data-filter-count)= societies.length] of #{societies.length} societies
-
-    .card-grid.cols-3
+    .card-grid.society-directory-grid.student-society-grid
       each society in societies
         - var societyName = formatSocietyName(society.email);
         - var searchText = [societyName, society.email, society.about_us_text, society.tags, society.categories, society.tag_list].filter(Boolean).join(" ");
-        article.society-card(data-filter-item data-search-text=searchText)
-          p.card-kicker Society
-          h3.card-title= societyName
-          p.card-text= society.about_us_text || "More information about this society will be shown here when it is available."
-          +societyTags(society)
-          .btn-row
-            a.btn.btn-primary(href=listBasePath + "/" + society.society_id) View Society
-            button.btn.btn-outline(type="button") Join Society
+        article.society-card.student-society-card(data-filter-item data-search-text=searchText)
+          if society && society.logo_url
+            img.society-thumb(src=society.logo_url, alt=societyName)
+          .student-society-card-body
+            p.card-kicker Society
+            h3.card-title= societyName
+            p.card-text= society.about_us_text || "A short society summary will appear here when it is available."
+            +societyTags(society)
+            a.btn.btn-primary.student-society-link(href=listBasePath + "/" + society.society_id) View Society
 
     div(hidden data-filter-empty)
-      +emptyState("No societies matched your search", "Try a different keyword or clear the field to see the full list again.")
-
-  section.section-block
-    .section-heading
-      p.eyebrow Student Guide
-      h2 What to look for before joining
-      p Keep the decision simple by comparing each society summary, its tags, and what the full society page offers.
-    +cardGrid(3)
-      +sharedCard("info-card", "Summary", "Read the short description", "Use the short description to quickly understand what the society is about before opening the full page.")
-      +sharedCard("info-card", "Details", "Open the full society page", "The single society page gives you a clearer overview, quick details, and room for recent activity.")
-      +sharedCard("info-card", "Next Step", "Join when you are ready", "The main student action stays visible on both the browse page and the single society page.")
+      +emptyState("No societies matched your search", "Try another keyword to bring more societies back into view.")

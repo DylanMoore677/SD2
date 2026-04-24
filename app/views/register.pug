@@ -1,0 +1,57 @@
+extends layout
+include includes/ui.pug
+
+block pageVars
+  - var pageRole = "student"
+  - var headerRoleLabel = null
+  - var navLinks = []
+  - var logoPath = "/"
+
+block content
+  - var defaultRegistrationRole = typeof defaultRegistrationRole !== "undefined" ? defaultRegistrationRole : "student";
+  - var loginPath = typeof loginPath !== "undefined" ? loginPath : "/login";
+  - var guestPath = typeof guestPath !== "undefined" ? guestPath : "/demo/guest/";
+  - var studentHomePath = typeof studentHomePath !== "undefined" ? studentHomePath : "/demo/student/";
+  - var adminHomePath = typeof adminHomePath !== "undefined" ? adminHomePath : "/demo/admin/";
+
+  section.section-block(data-role-switcher data-default-role=defaultRegistrationRole)
+    .auth-layout
+      section.form-shell.auth-main-card
+        .segmented-controls.auth-switch
+          button.role-tab(type="button" data-role-target="student") Register as Student
+          button.role-tab(type="button" data-role-target="admin") Register as Admin
+
+        section.auth-panel(data-role-panel="student")
+          .section-heading
+            p.eyebrow Student Registration
+            h2 Create your student account
+            p Keep the form simple, clear, and coursework-appropriate.
+          form.form-stack
+            +formInput("student-id", "Student ID", "text", "Enter your student ID")
+            +formInput("student-email", "Email", "email", "Enter your university email")
+            +formInput("student-name", "Full Name", "text", "Enter your full name")
+            +formInput("student-course", "Course", "text", "Add your course or programme")
+            .btn-row
+              a.btn.btn-primary(href=studentHomePath) Create Student Account
+              a.btn.btn-outline(href=loginPath) Back to Login
+
+        section.auth-panel(data-role-panel="admin" hidden)
+          .section-heading
+            p.eyebrow Society Registration
+            h2 Register a society
+            p Admin registration doubles as society registration so the society can appear in the platform.
+          form.form-stack
+            +formInput("society-name", "Society Name", "text", "Enter the society name")
+            +formInput("society-email", "Email", "email", "Enter the society email")
+            +formInput("society-image", "Society Image", "text", "Add an image URL")
+            +formTextarea("society-description", "Society Description", "Write a short society description")
+            .btn-row
+              a.btn.btn-primary(href=adminHomePath) Create Society
+              a.btn.btn-outline(href=loginPath) Back to Login
+
+      section.section-card.auth-choice-card
+        .section-heading
+          p.eyebrow Not Ready?
+          h2 Continue browsing first
+          p You can still explore the frontend as a guest and come back to register later.
+        a.btn.btn-soft(href=guestPath) Continue as Guest

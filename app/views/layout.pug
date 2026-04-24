@@ -8,18 +8,35 @@ html(lang="en")
     link(rel="preconnect", href="https://fonts.gstatic.com", crossorigin="crossorigin")
     link(rel="stylesheet", href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap")
     link(rel="stylesheet", href="/style.css")
-  body
-    .page-shell.site-shell
+  block pageVars
+  body(class=typeof pageRole !== "undefined" ? "role-" + pageRole : false)
+    - var defaultNavLinks = [{ label: "Home", href: "/", exact: true }, { label: "Societies", href: "/preview/societies" }, { label: "Profile", href: "/preview/profile/1" }, { label: "Members", href: "/preview/users" }, { label: "Login", href: "/login" }];
+    - var currentNavLinks = typeof navLinks !== "undefined" && navLinks ? navLinks : defaultNavLinks;
+    - var currentLogoPath = typeof logoPath !== "undefined" && logoPath ? logoPath : "/";
+    .page-shell.site-shell(class=typeof pageRole !== "undefined" ? pageRole + "-shell" : false)
       header.site-header
         .page-container
           nav.navbar(aria-label="Primary navigation")
-            a.logo(href="/") Society Hub
-            ul.nav-links
-              li: a(href="/") Home
-              li: a(href="/preview/societies") Societies
-              li: a(href="/preview/profile/1") Profile
-              li: a(href="/preview/users") Users
-              li: a(href="/login") Login
+            a.logo(href=currentLogoPath)
+              if typeof headerRoleLabel !== "undefined" && headerRoleLabel
+                span.logo-role= headerRoleLabel
+              span.logo-name Society Hub
+            if currentNavLinks && currentNavLinks.length
+              .nav-groups
+                ul.nav-links(class=pageRole === "student" ? "nav-pill-bar" : false)
+                  each item in currentNavLinks
+                    li
+                      a(
+                        href=item.href
+                        class=item.icon === "profile" ? "is-profile-link" : false
+                        aria-label=item.icon === "profile" ? item.label : false
+                        data-nav-exact=item.exact ? "true" : false
+                      )
+                        if item.icon === "profile"
+                          span.sr-only= item.label
+                          span.nav-profile-glyph(aria-hidden="true")
+                        else
+                          = item.label
       main.content
         .page-container.content-stack
           block content

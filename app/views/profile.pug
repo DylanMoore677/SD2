@@ -1,115 +1,206 @@
 extends layout
 include includes/ui.pug
 
+mixin profileIcon(name)
+  case name
+    when "avatar"
+      svg.student-profile-svg(viewBox="0 0 24 24" aria-hidden="true")
+        circle(cx="12", cy="8", r="3.6")
+        path(d="M6 19v-1.3a6 6 0 0 1 6-6h0a6 6 0 0 1 6 6V19")
+    when "user"
+      svg.student-profile-svg(viewBox="0 0 24 24" aria-hidden="true")
+        circle(cx="12", cy="8", r="3.1")
+        path(d="M7.5 18.2a4.8 4.8 0 0 1 9 0")
+    when "id"
+      svg.student-profile-svg(viewBox="0 0 24 24" aria-hidden="true")
+        rect(x="4.5", y="6", width="15", height="12", rx="2")
+        circle(cx="9", cy="12", r="1.25")
+        path(d="M12 10.2h4.2")
+        path(d="M12 13.8h4.2")
+    when "mail"
+      svg.student-profile-svg(viewBox="0 0 24 24" aria-hidden="true")
+        rect(x="4.5", y="6.5", width="15", height="11", rx="2")
+        path(d="M5.5 8l6.5 5 6.5-5")
+    when "calendar"
+      svg.student-profile-svg(viewBox="0 0 24 24" aria-hidden="true")
+        rect(x="4.5", y="6.5", width="15", height="12", rx="2")
+        path(d="M8 4.8v3.2")
+        path(d="M16 4.8v3.2")
+        path(d="M4.5 10h15")
+    when "members"
+      svg.student-profile-svg(viewBox="0 0 24 24" aria-hidden="true")
+        circle(cx="9", cy="8.5", r="2.6")
+        circle(cx="16.5", cy="10", r="2.1")
+        path(d="M4.8 18.5v-1a4.3 4.3 0 0 1 8.6 0v1")
+        path(d="M14.2 18v-.6a3.4 3.4 0 0 1 4.8-3.1")
+    when "event"
+      svg.student-profile-svg(viewBox="0 0 24 24" aria-hidden="true")
+        rect(x="4.5", y="6.5", width="15", height="12", rx="2")
+        path(d="M8 4.8v3.2")
+        path(d="M16 4.8v3.2")
+        path(d="M4.5 10h15")
+        path(d="M9 13h2.5")
+    when "updates"
+      svg.student-profile-svg(viewBox="0 0 24 24" aria-hidden="true")
+        path(d="M12 5.5a4.1 4.1 0 0 1 4.1 4.1v2.1l1.4 2.5H6.5l1.4-2.5V9.6A4.1 4.1 0 0 1 12 5.5z")
+        path(d="M10.1 17.2a2.1 2.1 0 0 0 3.8 0")
+    when "edit"
+      svg.student-profile-svg(viewBox="0 0 24 24" aria-hidden="true")
+        path(d="M4.8 19.2l3.2-.7L18 8.5l-2.8-2.8L5.2 15.7z")
+        path(d="M13.8 6.9l2.8 2.8")
+    when "plus"
+      svg.student-profile-svg(viewBox="0 0 24 24" aria-hidden="true")
+        path(d="M12 6v12")
+        path(d="M6 12h12")
+    when "logout"
+      svg.student-profile-svg(viewBox="0 0 24 24" aria-hidden="true")
+        path(d="M10 6H7.5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2H10")
+        path(d="M14 8l4 4-4 4")
+        path(d="M18 12H9.5")
+    when "delete"
+      svg.student-profile-svg(viewBox="0 0 24 24" aria-hidden="true")
+        path(d="M6.5 7.5h11")
+        path(d="M9 7.5V5.8h6v1.7")
+        path(d="M8 7.5l.8 10.2h6.4L16 7.5")
+        path(d="M10.5 10.2v4.4")
+        path(d="M13.5 10.2v4.4")
+    when "arrow"
+      svg.student-profile-svg(viewBox="0 0 24 24" aria-hidden="true")
+        path(d="M7 12h10")
+        path(d="M13.5 8.5l3.5 3.5-3.5 3.5")
+
+block pageVars
+  - var pageRole = "student"
+  - var headerRoleLabel = typeof headerRoleLabel !== "undefined" ? headerRoleLabel : "Student"
+  - var logoPath = typeof logoPath !== "undefined" ? logoPath : "/demo/student/"
+  - var studentBasePath = logoPath.replace(/\/$/, "")
+  - var navLinks = typeof navLinks !== "undefined" ? navLinks : [{ label: "Home", href: studentBasePath + "/", exact: true }, { label: "Societies", href: studentBasePath + "/societies/" }, { label: "News", href: studentBasePath + "/feed/" }, { label: "Profile", href: studentBasePath + "/profile/1/", icon: "profile" }]
+
 block content
+  - var isGuest = typeof isGuest !== "undefined" ? isGuest : false;
   - var fullName = [user && user.first_name, user && user.last_name].filter(Boolean).join(" ");
-  - var initials = (((user && user.first_name ? user.first_name.charAt(0) : "") + (user && user.last_name ? user.last_name.charAt(0) : "")) || "SH").toUpperCase();
-  - var favouriteCount = user && user.favorite_societies && user.favorite_societies.length ? user.favorite_societies.length : 0;
-  - var joinedCount = user && user.joined_societies && user.joined_societies.length ? user.joined_societies.length : 0;
-  - var recentStudentEvents = typeof recentStudentEvents !== 'undefined' ? recentStudentEvents : [];
+  - var displayName = fullName || (isGuest ? "Guest User" : "Student Name");
+  - var displayId = user && user.student_id ? user.student_id : (isGuest ? "Guest" : "Not available");
+  - var displayEmail = user && user.email ? user.email : (isGuest ? "guest@preview" : "Not available");
+  - var joinedSocieties = user && user.joined_societies ? user.joined_societies : [];
+  - var browsePath = typeof browsePath !== "undefined" ? browsePath : studentBasePath + "/societies/";
+  - var loginPath = typeof loginPath !== "undefined" ? loginPath : "/login";
+  - var registerPath = typeof registerPath !== "undefined" ? registerPath : "/register/";
+  - var memberSince = typeof memberSince !== "undefined" ? memberSince : (isGuest ? "Guest access" : "May 2025");
+  - var joinedCount = joinedSocieties.length;
+  - var upcomingEventsCount = typeof upcomingEventsCount !== "undefined" ? upcomingEventsCount : (isGuest ? 0 : Math.max(joinedCount + 2, joinedCount ? 3 : 0));
+  - var recentUpdatesCount = typeof recentUpdatesCount !== "undefined" ? recentUpdatesCount : (isGuest ? 0 : Math.max(joinedCount + 3, joinedCount ? 4 : 0));
+  - var activityItems = [{ icon: "members", value: joinedCount, label: "Joined Societies" }, { icon: "event", value: upcomingEventsCount, label: "Upcoming Events" }, { icon: "updates", value: recentUpdatesCount, label: "Recent Updates" }];
+  //- Frontend-only metadata keeps demo profile rows populated without backend joins.
+  - var communityMeta = { "Coding Society": { id: 1, image: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=900&q=80", description: "Building projects, solving problems, and learning together through code." }, "Film Society": { id: 2, image: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&q=80", description: "Weekly screenings, themed discussions, and student reviews across different genres." }, "Running Society": { id: 3, image: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=900&q=80", description: "Friendly campus runs, training sessions, and wellbeing-focused meetups every week." } };
+  - var joinedCommunities = joinedSocieties.map(function(name) { var meta = communityMeta[name] || {}; return { name: name, id: meta.id || null, image: meta.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80", description: meta.description || (isGuest ? "Preview community details while browsing as a guest." : "Community details will appear here once profile data is fully connected."), badge: isGuest ? "Preview" : "Member" }; });
 
-  if showPrototypeNotice
-    p.notice This profile page is currently a prototype. Some details are placeholder content and will be connected to live user data later.
+  header.page-header.student-profile-header
+    .student-profile-header-copy
+      h1.page-title My Profile
+      p.page-subtitle Manage your account details, view your joined societies, and update your preferences.
+    .student-profile-hero-avatar(aria-hidden="true")
+      span.student-profile-hero-avatar-circle
+        +profileIcon("avatar")
 
-  +pageHeader("Student Profile", "Keep your student account, joined societies, and future activity in one easy-to-scan place.", fullName || "Student")
-    a.btn.btn-primary(href="/preview/societies") Browse Societies
-    button.btn.btn-outline(type="button") Edit Profile
+  section.section-block.student-profile-section.student-profile-overview-section
+    .student-profile-main-grid
+      section.section-card.student-profile-summary-card
+        p.student-profile-kicker Profile Summary
+        h2.card-title Your details
+        .student-profile-detail-list
+          .student-profile-detail-row
+            span.student-profile-detail-icon
+              +profileIcon("user")
+            span.student-profile-detail-label Full Name
+            strong.student-profile-detail-value= displayName
+          .student-profile-detail-row
+            span.student-profile-detail-icon
+              +profileIcon("id")
+            span.student-profile-detail-label Student ID
+            strong.student-profile-detail-value= displayId
+          .student-profile-detail-row
+            span.student-profile-detail-icon
+              +profileIcon("mail")
+            span.student-profile-detail-label Email Address
+            strong.student-profile-detail-value= displayEmail
+          .student-profile-detail-row
+            span.student-profile-detail-icon
+              +profileIcon("calendar")
+            span.student-profile-detail-label Member Since
+            strong.student-profile-detail-value= memberSince
+        .btn-row.student-profile-summary-actions
+          if isGuest
+            a.btn.btn-primary.student-profile-inline-button(href=registerPath)
+              span.student-profile-button-icon
+                +profileIcon("plus")
+              span Register
+            a.btn.btn-outline.student-profile-inline-button(href=loginPath) Login
+          else
+            button.btn.btn-outline.student-profile-inline-button(type="button")
+              span.student-profile-button-icon
+                +profileIcon("edit")
+              span Edit Profile
 
-  section.section-block
-    .split-layout
-      section.section-card
-        .section-heading
-          p.eyebrow Profile Summary
-          h2 Your account at a glance
-          p Keep the core account information visible so your profile remains a useful home for the rest of the student journey.
-        .profile-summary
-          span.profile-avatar(aria-hidden="true")= initials
-          div
-            h2= fullName || "Student Profile"
-            p.card-subtitle= user && user.email ? user.email : "Email not available yet"
-        dl.detail-list
-          .detail-row
-            dt Student ID
-            dd= user && user.student_id ? user.student_id : "Not provided"
-          .detail-row
-            dt Email
-            dd= user && user.email ? user.email : "Not provided"
-          .detail-row
-            dt Account type
-            dd Student
-        p.card-text Student at Roehampton University.
-        +statsGrid
-          +statCard(user && user.student_id ? user.student_id : "ID", "Student reference", "The current profile route still uses the existing student id from the backend.")
-          +statCard(favouriteCount, "Favourite societies", "This count updates automatically whenever favourite society data is passed into the template.")
-          +statCard(joinedCount, "Joined societies", "Membership totals can appear here without any route or controller changes.")
+      aside.section-card.student-profile-activity-card
+        h2.card-title Your Activity
+        .student-profile-activity-list
+          each item in activityItems
+            .student-profile-activity-item
+              span.student-profile-activity-icon(class="is-" + item.icon)
+                +profileIcon(item.icon)
+              .student-profile-activity-copy
+                strong= item.value
+                span= item.label
 
-      aside.sidebar-stack
-        section.section-card
-          .section-heading
-            p.eyebrow Account Actions
-            h2 Manage your account
-            p Keep the most important student actions grouped together in one clear area.
-          .btn-row
-            button.btn.btn-outline(type="button") Update Email
-            button.btn.btn-outline(type="button") Manage Memberships
-            a.btn.btn-soft(href="/preview/societies") Browse More Societies
-
-        section.section-card
-          .section-heading
-            p.eyebrow Student Guide
-            h2 What to do next
-            p This layout stays ready for profile editing and membership tools without needing another restructure later.
-          .flow-grid
-            +flowStep("1", "Keep details current", "Future editing controls can live here while the account summary remains easy to scan.")
-            +flowStep("2", "Track memberships", "Joined societies can stay visible below as soon as that data is available in the template.")
-            +flowStep("3", "Return to discovery", "Use the societies page whenever you want to browse more communities or revisit one later.")
-
-  section.section-block
-    .section-heading
-      p.eyebrow Joined Societies
-      h2 Societies connected to your profile
-      p Keep joined societies visible so the student profile remains a useful home base.
-    +cardGrid(2)
-      section.section-card
-        .section-heading
-          p.eyebrow Favourite Societies
-          h3 Societies you want to revisit
-          p Keep this area ready for societies you want to come back to quickly.
-        if user.favorite_societies && user.favorite_societies.length
-          .tag-list
-            each society in user.favorite_societies
-              span.tag= society
-        else
-          p.empty-copy Favourite societies will appear here when that data is available.
-
-      section.section-card
-        .section-heading
-          p.eyebrow Joined Memberships
-          h3 Societies you have joined
-          p This section is reserved for active memberships so you can see your communities at a glance.
-        if user.joined_societies && user.joined_societies.length
-          .tag-list
-            each society in user.joined_societies
-              span.tag= society
-        else
-          p.empty-copy Membership data will appear here once joined societies are passed into the template.
-
-  section.section-block
-    .section-heading
-      p.eyebrow Recent Student Activity
-      h2 Recent RSVPs and events
-      p This section can show current event participation when that data is passed into the profile template.
-    .feed-stack
-      if recentStudentEvents.length
-        each item in recentStudentEvents
-          article.event-card.feed-card
-            p.card-kicker= item.type || "Event"
-            h3.card-title= item.title || "Student activity"
-            p.card-text= item.description || item.content || "Additional student activity details will appear here when they are available."
-            p.feed-meta= item.event_date || item.created_at || "Upcoming activity"
+  section.section-block.student-profile-section
+    section.section-card.student-profile-communities-card
+      h2.card-title Your Communities
+      p.card-text The societies you've joined.
+      if joinedCommunities.length
+        .student-profile-community-list
+          each community in joinedCommunities
+            article.student-profile-community-item
+              img.student-profile-community-image(src=community.image, alt=community.name, loading="lazy")
+              .student-profile-community-body
+                h3.student-profile-community-title= community.name
+                p.student-profile-community-text= community.description
+                span.student-profile-community-badge= community.badge
+              if community.id
+                a.btn.btn-outline.student-profile-community-link(href=studentBasePath + "/societies/" + community.id + "/")
+                  span View Society
+                  span.student-profile-button-icon
+                    +profileIcon("arrow")
+              else
+                a.btn.btn-outline.student-profile-community-link(href=browsePath)
+                  span Browse Societies
+                  span.student-profile-button-icon
+                    +profileIcon("arrow")
       else
-        article.event-card.feed-card
-          p.card-kicker RSVP Preview
-          h3.card-title Recent RSVP and event activity will appear here
-          p.card-text This space is reserved for future event participation details without changing the backend in this step.
-          p.feed-meta Placeholder content
+        p.empty-copy.student-profile-empty-copy #{isGuest ? "Guest browsing does not save societies yet, but you can still explore everything." : "Joined societies will appear here once membership data is available."}
+      a.btn.btn-outline.student-profile-wide-action(href=browsePath)
+        span.student-profile-button-icon
+          +profileIcon("plus")
+        span Join More Societies
+
+  section.section-block.student-profile-section
+    section.section-card.student-profile-actions-card
+      p.student-profile-kicker Account Actions
+      h2.card-title #{isGuest ? "Ready to create an account?" : "Manage your account"}
+      p.card-text #{isGuest ? "Create an account to save societies, personalise your feed, and manage your student space." : "Update your security settings or manage your account."}
+      .btn-row.student-profile-account-buttons
+        if isGuest
+          a.btn.btn-primary.student-profile-inline-button(href=registerPath)
+            span.student-profile-button-icon
+              +profileIcon("plus")
+            span Register
+          a.btn.btn-outline.student-profile-inline-button(href=loginPath) Login
+        else
+          button.btn.btn-outline.student-profile-inline-button(type="button")
+            span.student-profile-button-icon
+              +profileIcon("logout")
+            span Logout
+          button.btn.btn-danger.student-profile-inline-button.student-profile-delete-button(type="button")
+            span.student-profile-button-icon
+              +profileIcon("delete")
+            span Delete Account

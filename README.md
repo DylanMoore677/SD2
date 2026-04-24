@@ -13,6 +13,13 @@ Students can:
 - **Join** societies
 - See a personalised feed + events list based on memberships
 
+## Route Structure
+
+- `/login` and `/register/` are the frontend entry pages.
+- `/demo/*` hosts the current frontend demo experience and uses the placeholder content in `app/services/preview-data.js`.
+- `/preview/*` keeps the database-backed scaffold routes used while wiring the real app data.
+- `node scripts/generate-previews.js` rebuilds only `static/previews`, so generated HTML no longer shadows live app routes.
+
 ## Tech Stack (Module-aligned)
 - Frontend: HTML, CSS, JavaScript, **Pug**
 - Backend: **Node.js**, **Express**

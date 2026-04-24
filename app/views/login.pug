@@ -1,89 +1,17 @@
 extends layout
 include includes/ui.pug
 
+block pageVars
+  - var pageRole = "student"
+  - var headerRoleLabel = null
+  - var navLinks = []
+  - var logoPath = "/"
+
 block content
-  +pageHeader("Organiser Access", "Sign in to manage society activity, review member information, and coordinate announcements, events, and polls from one cleaner dashboard flow.", "Admin / Organiser")
-    a.btn.btn-primary(href="/preview/users") Open Member Directory
-    a.btn.btn-outline(href="/preview/societies") View Public Societies
+  - var registerPath = typeof registerPath !== "undefined" ? registerPath : "/register/"
+  - var guestPath = typeof guestPath !== "undefined" ? guestPath : "/demo/guest/"
+  - var studentHomePath = typeof studentHomePath !== "undefined" ? studentHomePath : "/demo/student/"
+  - var adminHomePath = typeof adminHomePath !== "undefined" ? adminHomePath : "/demo/admin/"
+  - var adminRegisterPath = typeof adminRegisterPath !== "undefined" ? adminRegisterPath : "/register/admin/"
 
-  section.section-block(data-role-switcher data-default-role="admin")
-    +dashboardLayout()
-      +dashboardSidebar("Organiser Navigation", "Use the organiser side of the platform to manage members, content, events, and future RSVP activity.")
-        +dashboardNav([
-          { label: "Overview", href: "#overview", active: true },
-          { label: "Member Directory", href: "#directory" },
-          { label: "Content Tools", href: "#content-tools" },
-          { label: "Student Access", href: "#student-access" }
-        ])
-        .tag-stack
-          h3 Quick focus
-          .tag-list
-            span.tag Announcements
-            span.tag Events
-            span.tag Polls
-            span.tag Members
-
-      main.dashboard-main
-        section.section-card#overview
-          .section-heading
-            p.eyebrow Organiser Login
-            h2 Enter the organiser dashboard
-            p The organiser flow is kept separate and more management-focused, while remaining frontend-only and coursework-appropriate.
-          .segmented-controls
-            button.role-tab(type="button" data-role-target="admin") Admin / Organiser
-            button.role-tab(type="button" data-role-target="student") Student Access
-
-          .auth-grid
-            section.auth-panel(data-role-panel="admin")
-              h3.card-title Organiser sign in
-              p.form-intro Manage society posts, member information, and future RSVP planning from this organiser path.
-              form.form-stack
-                +formInput("admin-email", "Organiser email", "email", "Enter organiser email")
-                +formInput("admin-password", "Password", "password", "Enter your password")
-                .btn-row
-                  button.btn.btn-primary(type="button") Continue as Organiser
-                  a.btn.btn-outline(href="/preview/users") Review Members
-              p.helper-text Organiser permissions and live submission handling should stay in backend routes when they are added later.
-
-            section.auth-panel(data-role-panel="student" hidden)
-              h3.card-title Student sign in
-              p.form-intro Student access stays available here, but the page is currently organised around the organiser workflow.
-              form.form-stack
-                +formInput("student-email", "University email", "email", "Enter your university email")
-                +formInput("student-password", "Password", "password", "Enter your password")
-                .btn-row
-                  button.btn.btn-outline(type="button") Continue as Student
-                  a.btn.btn-outline(href="/preview/societies") Browse Societies
-              p.helper-text Student authentication can remain on this route until separate access pages are added later.
-
-        section.section-card#content-tools
-          .section-heading
-            p.eyebrow Content Tools
-            h2 What the organiser dashboard supports
-            p The dashboard layout keeps key organiser actions visible without introducing backend features that do not exist yet.
-          +cardGrid(3)
-            +sharedCard("management-card", "Announcements", "Post updates for members", "Use organiser tools to keep members informed about meetings, changes, and society news.")
-              button.btn.btn-outline(type="button") Draft Announcement
-            +sharedCard("management-card", "Events", "Plan and publish events", "Create event posts with titles, dates, locations, and descriptions once the relevant flow is connected.")
-              button.btn.btn-outline(type="button") Draft Event
-            +sharedCard("management-card", "Polls", "Collect quick feedback", "Poll cards can support question setup and response tracking in a future organiser workflow.")
-              button.btn.btn-outline(type="button") Draft Poll
-
-        section.section-card#directory
-          .section-heading
-            p.eyebrow Organiser Overview
-            h2 Dashboard priorities
-            p The organiser side is designed to feel more like a workspace, with clear navigation and quick access to the member directory.
-          .flow-grid
-            +flowStep("1", "Sign in to the organiser path", "Start here when you need access to dashboards, member records, or future content tools.")
-            +flowStep("2", "Review members and activity", "Use the member directory to inspect student details and prepare for future RSVP management.")
-            +flowStep("3", "Return to publishing tools", "Move back into announcements, events, and polls whenever the organiser workflow is expanded.")
-
-        section.section-card#student-access
-          .section-heading
-            p.eyebrow Shared Access
-            h2 Keep student access available
-            p This shared route can still support student login while the organiser experience stays front and centre.
-          .btn-row
-            a.btn.btn-outline(href="/preview/societies") Open Student Pages
-            a.btn.btn-outline(href="/preview/profile/1") Open Student Profile
+  +authLoginEntry(studentHomePath, adminHomePath, guestPath, registerPath, adminRegisterPath, "student")

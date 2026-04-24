@@ -1,71 +1,188 @@
 extends layout
 include includes/ui.pug
 
+mixin newsPageIcon(name)
+  case name
+    when "all"
+      svg.student-feed-svg(viewBox="0 0 24 24" aria-hidden="true")
+        rect(x="4", y="4", width="6", height="6", rx="1.4")
+        rect(x="14", y="4", width="6", height="6", rx="1.4")
+        rect(x="4", y="14", width="6", height="6", rx="1.4")
+        rect(x="14", y="14", width="6", height="6", rx="1.4")
+    when "announcement"
+      svg.student-feed-svg(viewBox="0 0 24 24" aria-hidden="true")
+        path(d="M4 13.5v-3l10-4v11l-10-4z")
+        path(d="M14 9h2a4 4 0 0 1 0 8h-2")
+        path(d="M7.5 14.5l1.2 4.1")
+    when "event"
+      svg.student-feed-svg(viewBox="0 0 24 24" aria-hidden="true")
+        rect(x="4", y="6", width="16", height="14", rx="2")
+        path(d="M8 4v4")
+        path(d="M16 4v4")
+        path(d="M4 10.5h16")
+    when "poll"
+      svg.student-feed-svg(viewBox="0 0 24 24" aria-hidden="true")
+        path(d="M5 19V9")
+        path(d="M12 19V5")
+        path(d="M19 19v-7")
+        path(d="M3.5 19.5h17")
+    when "general"
+      svg.student-feed-svg(viewBox="0 0 24 24" aria-hidden="true")
+        path(d="M6 17.5h2l3.2-2.8h6.8a2 2 0 0 0 2-2V7.8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v4.9a2 2 0 0 0 2 2z")
+    when "search"
+      svg.student-feed-svg(viewBox="0 0 24 24" aria-hidden="true")
+        circle(cx="11", cy="11", r="6.5")
+        path(d="M16 16l4 4")
+    when "bookmark"
+      svg.student-feed-svg(viewBox="0 0 24 24" aria-hidden="true")
+        path(d="M7 5.5h10a1 1 0 0 1 1 1v12.5l-6-3-6 3V6.5a1 1 0 0 1 1-1z")
+    when "code"
+      svg.student-feed-svg(viewBox="0 0 24 24" aria-hidden="true")
+        path(d="M9 8l-4 4 4 4")
+        path(d="M15 8l4 4-4 4")
+        path(d="M13.5 6l-3 12")
+    when "film"
+      svg.student-feed-svg(viewBox="0 0 24 24" aria-hidden="true")
+        path(d="M4 7.5h16v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z")
+        path(d="M8 7.5l1.8-3")
+        path(d="M14.2 7.5L16 4.5")
+        path(d="M4 12h16")
+    when "running"
+      svg.student-feed-svg(viewBox="0 0 24 24" aria-hidden="true")
+        circle(cx="14.5", cy="5.5", r="2")
+        path(d="M9 19.5l2.5-5 2.5 1.5 2.5-3")
+        path(d="M11.5 8.5l2 1.2 2.2.4")
+        path(d="M8.5 12.5l2.7-2.4")
+    default
+      svg.student-feed-svg(viewBox="0 0 24 24" aria-hidden="true")
+        circle(cx="12", cy="12", r="8")
+
+block pageVars
+  - var pageRole = "student"
+  - var headerRoleLabel = typeof headerRoleLabel !== "undefined" ? headerRoleLabel : "Student"
+  - var logoPath = typeof logoPath !== "undefined" ? logoPath : "/demo/student/"
+  - var studentBasePath = logoPath.replace(/\/$/, "")
+  - var navLinks = typeof navLinks !== "undefined" ? navLinks : [{ label: "Home", href: studentBasePath + "/", exact: true }, { label: "Societies", href: studentBasePath + "/societies/" }, { label: "News", href: studentBasePath + "/feed/" }, { label: "Profile", href: studentBasePath + "/profile/1/", icon: "profile" }]
+
 block content
-  - var feedItems = typeof feedItems !== 'undefined' ? feedItems : [];
-  - var joinedSocieties = typeof joinedSocieties !== 'undefined' ? joinedSocieties : [];
+  - var feedItems = typeof feedItems !== "undefined" ? feedItems : [];
+  //- Frontend-only fallback imagery keeps the routed feed and preview pages aligned.
+  - var feedImageMap = { "Coding Society room change": "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80", "Running Society morning loop": "https://images.unsplash.com/photo-1502904550040-7534597429ae?auto=format&fit=crop&w=900&q=80", "Film Society genre vote": "https://images.unsplash.com/photo-1513106580091-1d82408b8cd6?auto=format&fit=crop&w=900&q=80", "Film Society post-screening discussion": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=80", "Coding Society": "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80", "Film Society": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=80", "Running Society": "https://images.unsplash.com/photo-1502904550040-7534597429ae?auto=format&fit=crop&w=900&q=80" };
+  - var feedSummary = [{ key: "Announcement", label: "Announcements", icon: "announcement" }, { key: "Event", label: "Events", icon: "event" }, { key: "Poll", label: "Polls", icon: "poll" }, { key: "General", label: "General", icon: "general" }];
+  - var feedCounts = { Announcement: 0, Event: 0, Poll: 0, General: 0 };
+  - var societyCounts = {};
+  - feedItems.forEach(function(item) {
+  -   var itemType = item.type || "General";
+  -   if (!feedCounts[itemType]) {
+  -     feedCounts[itemType] = 0;
+  -   }
+  -   feedCounts[itemType] += 1;
+  -   var sourceName = item.society_name || "Joined society";
+  -   societyCounts[sourceName] = (societyCounts[sourceName] || 0) + 1;
+  - });
+  - var totalUpdates = feedItems.length;
+  - var popularSocieties = Object.keys(societyCounts).map(function(name) { return { name: name, count: societyCounts[name] }; }).sort(function(a, b) { return b.count - a.count || a.name.localeCompare(b.name); }).slice(0, 3);
 
-  +pageHeader("My News", "See recent posts and event updates from the societies you have joined in one clean, student-friendly feed.", "Student Feed")
-    a.btn.btn-primary(href="/preview/societies") Browse Societies
-    a.btn.btn-outline(href="/preview/profile/1") View Profile
+  header.page-header.news-page-header
+    h1.page-title My News
+    p.page-subtitle Stay updated with the latest from your societies and campus community.
 
-  section.section-block
-    .split-layout
-      section.section-card
-        .section-heading
-          p.eyebrow Joined Society Feed
-          h2 Latest posts and events from your communities
-          p Feed cards are stacked for easy scanning and can display updates from joined societies when that data is available.
-        .feed-stack
-          if feedItems.length
-            each item in feedItems
-              article.event-card.feed-card
-                p.card-kicker= item.type || "Update"
+  section.section-block.student-feed-section(data-feed-root)
+    .student-feed-toolbar
+      .student-feed-filters(role="tablist" aria-label="News filters")
+        button.news-filter-pill.is-active(type="button" data-feed-filter="all" aria-pressed="true")
+          span.news-filter-pill-icon
+            +newsPageIcon("all")
+          span All Updates
+        each summaryItem in feedSummary
+          button.news-filter-pill(type="button" data-feed-filter=summaryItem.key.toLowerCase() aria-pressed="false")
+            span.news-filter-pill-icon
+              +newsPageIcon(summaryItem.icon)
+            span= summaryItem.label
+      label.student-feed-search
+        span.student-feed-search-icon
+          +newsPageIcon("search")
+        input.form-input(type="search", name="news-search", placeholder="Search news...", aria-label="Search news" data-feed-search)
+
+    .student-news-layout
+      .student-feed-stream(data-feed-stream)
+        if feedItems.length
+          each item in feedItems
+            - var feedSource = item.society_name || "Joined society";
+            - var feedDate = item.created_at || item.event_date || "Recently";
+            - var feedImage = feedImageMap[item.title] || item.image_url || feedImageMap[feedSource] || null;
+            - var feedType = item.type || "General";
+            - var feedTone = feedType.toLowerCase();
+            - var feedSearchText = [item.title, item.content, item.description, feedSource, feedDate, feedType].filter(Boolean).join(" ");
+            article.student-feed-card(data-feed-item data-feed-type=feedTone data-search-text=feedSearchText class="is-" + feedTone)
+              if feedImage
+                img.news-card-image(src=feedImage, alt=(item.title || item.society_name || "News update"), loading="lazy")
+              .student-feed-card-body
+                .student-feed-card-top
+                  p.student-feed-card-badge(class="is-" + feedTone)= feedType
+                  button.news-save-button(type="button", aria-label="Bookmark this update")
+                    +newsPageIcon("bookmark")
                 h3.card-title= item.title || item.society_name || "Society update"
                 p.card-text= item.content || item.description || "More detail will appear here when student feed content is available."
-                p.feed-meta
-                  | #{item.society_name || "Joined society"}
-                  if item.created_at || item.event_date
-                    |  • #{item.created_at || item.event_date}
-                .btn-row
-                  a.btn.btn-outline(href="/preview/societies") Browse Societies
-          else
-            article.event-card.feed-card
-              p.card-kicker Announcement
-              h3.card-title Feed posts will appear here
-              p.card-text Society announcements can stack here once joined society feed data is passed into the template.
-              p.feed-meta Placeholder content
-            article.event-card.feed-card
-              p.card-kicker Event
-              h3.card-title Upcoming events will appear here
-              p.card-text Event updates can show dates, descriptions, and future RSVP actions when that information becomes available.
-              p.feed-meta Placeholder content
-            article.event-card.feed-card
-              p.card-kicker Poll
-              h3.card-title Poll updates can appear here too
-              p.card-text The feed layout is ready for different post types while keeping the student experience easy to scan.
-              p.feed-meta Placeholder content
+                p.student-feed-meta
+                  span.student-feed-source
+                    span.student-feed-dot(class="is-" + feedTone)
+                    span= feedSource
+                  span.student-feed-meta-divider |
+                  span= feedDate
+        else
+          article.student-feed-card.is-general
+            .student-feed-card-body
+              .student-feed-card-top
+                p.student-feed-card-badge.is-general General
+              h3.card-title News items will appear here
+              p.card-text Society posts, event reminders, and announcements will show one after another in this stacked feed.
+              p.student-feed-meta
+                span.student-feed-source
+                  span.student-feed-dot.is-general
+                  span Joined societies
+                span.student-feed-meta-divider |
+                span Recent updates
+        .student-feed-empty-card(hidden data-feed-empty)
+          h3.card-title No updates match this filter
+          p.card-text Try another category or clear the search to see more news from your societies.
 
-      aside.sidebar-stack
-        section.section-card
-          .section-heading
-            p.eyebrow Joined Societies
-            h2 Feed sources
-            p This sidebar can show the societies currently contributing items to the student feed.
-          if joinedSocieties.length
-            .tag-list
-              each society in joinedSocieties
-                - var societyLabel = typeof society === "string" ? society : (society.name || society.email || society.title || "Joined society");
-                span.tag= societyLabel
-          else
-            p.empty-copy Joined societies will appear here when that data is available.
+      aside.student-news-sidebar
+        section.student-news-side-card
+          h3.card-title News at a glance
+          ul.student-news-summary-list
+            each summaryItem in feedSummary
+              li.student-news-summary-row
+                .student-news-summary-meta
+                  span.student-news-summary-icon(class="is-" + summaryItem.key.toLowerCase())
+                    +newsPageIcon(summaryItem.icon)
+                  span= summaryItem.label
+                strong.student-news-summary-count= feedCounts[summaryItem.key] || 0
+          .student-news-total
+            span Total updates
+            strong= totalUpdates
 
-        section.section-card
-          .section-heading
-            p.eyebrow Student Tips
-            h2 How to use My News
-            p Keep the feed page simple so students can scan updates quickly.
-          .flow-grid
-            +flowStep("1", "Scan the newest cards", "Read through the latest stacked cards from your joined societies.")
-            +flowStep("2", "Look for event details", "Use event-focused cards to spot dates, locations, and future RSVP actions.")
-            +flowStep("3", "Go back to discovery", "Browse more societies whenever you want to add new communities to your student experience.")
+        section.student-news-side-card
+          h3.card-title Popular societies
+          if popularSocieties.length
+            ul.student-popular-list
+              each society in popularSocieties
+                - var societyTone = /coding/i.test(society.name) ? "coding" : /film/i.test(society.name) ? "film" : /running/i.test(society.name) ? "running" : "general";
+                - var societyIcon = societyTone === "coding" ? "code" : societyTone === "film" ? "film" : societyTone === "running" ? "running" : "general";
+                li.student-popular-item
+                  span.student-popular-icon(class="is-" + societyTone)
+                    +newsPageIcon(societyIcon)
+                  .student-popular-copy
+                    strong= society.name
+                    span= society.count + (society.count === 1 ? " update" : " updates")
+          else
+            p.card-text Joined societies will appear here once updates start coming through.
+          a.student-side-link(href=studentBasePath + "/societies/")
+            span View all societies
+            span.student-side-link-arrow &rarr;
+
+        section.student-news-side-card.student-news-side-card--bookmark
+          h3.card-title Stay in the loop
+          p.card-text Bookmark important updates to find them easily later.
+          span.student-news-bookmark-chip
+            +newsPageIcon("bookmark")

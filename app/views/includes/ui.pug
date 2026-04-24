@@ -1,14 +1,4 @@
-mixin pageHero(eyebrow, title, copy)
-  header.page-header.page-hero
-    if eyebrow
-      p.eyebrow= eyebrow
-    h1.page-title= title
-    if copy
-      p.page-subtitle.hero-copy= copy
-    if block
-      .btn-row.hero-actions
-        block
-
+//- Shared content building blocks for the live routed pages.
 mixin statCard(value, label, helper)
   article.stat-card
     p.stat-label= label
@@ -16,28 +6,12 @@ mixin statCard(value, label, helper)
     if helper
       p.stat-helper= helper
 
-mixin infoCard(title, body, tone)
-  article.info-card(class=tone ? "is-" + tone : "")
-    h3.card-title= title
-    if body
-      p.card-text= body
-    if block
-      .card-actions
-        block
-
 mixin flowStep(number, title, body)
   article.flow-step
     span.flow-step-number= number
     div
       h3= title
       p= body
-
-mixin detailList(items)
-  dl.detail-list
-    each item in items
-      .detail-row
-        dt= item.label
-        dd= item.value
 
 mixin emptyState(title, body)
   section.empty-state
@@ -53,12 +27,6 @@ mixin pageHeader(title, subtitle, eyebrow)
       p.page-subtitle= subtitle
     if block
       .btn-row
-        block
-
-mixin sectionBlock(extraClasses)
-  section.section-block(class=extraClasses)
-    .page-container
-      if block
         block
 
 mixin cardGrid(columns)
@@ -80,16 +48,6 @@ mixin sharedCard(type, kicker, title, body, tone)
       .card-actions
         block
 
-mixin buttonRow()
-  .btn-row
-    if block
-      block
-
-mixin splitLayout()
-  .split-layout
-    if block
-      block
-
 mixin dashboardLayout()
   .dashboard-layout
     if block
@@ -109,14 +67,54 @@ mixin dashboardNav(items)
     each item in items
       a(href=item.href, class=item.active ? "is-active" : false)= item.label
 
-mixin formShell(title, body)
-  .form-shell
-    if title
-      h2.card-title= title
-    if body
-      p.card-text= body
-    if block
-      block
+//- Auth and form helpers stay in one place so login/register previews and routes share markup.
+mixin authLoginEntry(studentHomePath, adminHomePath, guestPath, registerPath, adminRegisterPath, defaultRole)
+  - var initialRole = defaultRole || "student"
+  section.section-block.auth-login-section
+    .auth-layout.auth-login-layout(
+      data-login-root
+      data-default-role=initialRole
+      data-student-path=studentHomePath
+      data-admin-path=adminHomePath
+      data-student-register-path=registerPath
+      data-admin-register-path=adminRegisterPath || registerPath
+    )
+      section.form-shell.auth-main-card.auth-login-card
+        .section-heading.auth-login-heading
+          h2 Login
+        form.form-stack(method="get", action=studentHomePath, data-login-form)
+          input(type="hidden", name="role", value=initialRole, data-login-role-input)
+          .form-group.auth-role-picker
+            label Login as
+            .segmented-controls.auth-switch
+              button.role-tab(type="button", data-login-role="student") Student
+              button.role-tab(type="button", data-login-role="admin") Admin
+          p.auth-role-copy(data-login-copy) Student access opens your profile, societies, and news feed.
+          +formInput("login-email", "Email", "email", "Enter your email")
+          +formInput("login-password", "Password", "password", "Enter your password")
+          .btn-row.auth-login-actions
+            button.btn.btn-primary(type="submit") Login
+            a.btn.btn-outline(
+              href=registerPath
+              data-login-register
+              data-student-register-label="Register"
+              data-admin-register-label="Register a Society"
+            ) Register
+            a.btn.btn-soft.btn-small.auth-guest-link(href=guestPath) Login as Guest
+      section.section-card.auth-login-support
+        .section-heading.auth-support-heading
+          h3 Welcome to Society Hub
+          p Sign in to continue to the platform, or browse first as a guest.
+        .auth-support-list
+          article.auth-support-item
+            p.card-kicker Student
+            p.card-text Discover societies, keep up with updates, and manage your profile from one student space.
+          article.auth-support-item
+            p.card-kicker Admin
+            p.card-text Open the organiser dashboard to manage posts, members, events, and society details.
+          article.auth-support-item
+            p.card-kicker Guest
+            p.card-text Browse societies before creating an account so you can explore the platform without any data issues.
 
 mixin formInput(id, label, type, placeholder, value)
   .form-group

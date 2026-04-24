@@ -1,14 +1,23 @@
 extends layout
 include includes/ui.pug
 
+block pageVars
+  - var pageRole = "admin"
+  - var headerRoleLabel = typeof headerRoleLabel !== "undefined" ? headerRoleLabel : "Admin"
+  - var navLinks = typeof navLinks !== "undefined" ? navLinks : [{ label: "Dashboard", href: "/demo/admin/" }, { label: "Manage Society", href: "/demo/admin/manage-society/" }, { label: "Create Post", href: "/demo/admin/create-post/" }, { label: "Members", href: "/demo/admin/members/" }]
+  - var logoPath = typeof logoPath !== "undefined" ? logoPath : "/demo/admin/"
+
 block content
-  - var profilePath = profileBasePath || "/preview/profile";
+  - var profilePath = profileBasePath || "/demo/student/profile";
+  - var dashboardPath = typeof dashboardPath !== "undefined" ? dashboardPath : "/demo/admin/";
+  - var publicSocietiesPath = typeof publicSocietiesPath !== "undefined" ? publicSocietiesPath : "/demo/student/societies";
+  - var directoryResetPath = typeof directoryResetPath !== "undefined" ? directoryResetPath : "/demo/admin/members/";
   if prototypeMessage
     p.notice= prototypeMessage
 
   +pageHeader("Member Directory", "Review student records in a cleaner organiser workspace, search quickly, and keep member information easy to scan.", "Admin / Organiser")
-    a.btn.btn-primary(href="/login") Organiser Login
-    a.btn.btn-outline(href="/preview/societies") View Public Society Pages
+    a.btn.btn-primary(href=dashboardPath) Dashboard
+    a.btn.btn-outline(href=publicSocietiesPath) View Public Society Pages
 
   section.section-block(data-filter-root)
     +dashboardLayout()
@@ -19,12 +28,18 @@ block content
           { label: "Profiles", href: "#profile-links" },
           { label: "Workflow", href: "#organiser-workflow" }
         ])
-        +statsGrid
-          +statCard(users.length, "Student records", "Each entry links to the existing profile route.")
-          +statCard("Live", "Search tools", "Filtering stays on the client side and keeps backend behaviour untouched.")
-          +statCard("Organiser", "Current focus", "Review members before managing future posts, events, and RSVP lists.")
 
       main.dashboard-main
+        section.section-card
+          .section-heading
+            p.eyebrow Directory Overview
+            h2 Member records and search tools
+            p Start with the most useful organiser signals before moving into the full list of student records.
+          +statsGrid
+            +statCard(users.length, "Student records", "Each entry links to the existing profile route.")
+            +statCard("Live", "Search tools", "Filtering stays on the client side and keeps backend behaviour untouched.")
+            +statCard("Profiles", "Next action", "Use the directory as the starting point before opening detailed student pages.")
+
         section.form-shell#directory-search
           .section-heading
             p.eyebrow Directory Search
@@ -49,7 +64,7 @@ block content
                   option Student ID
             .btn-row
               button.btn.btn-primary(type="button" data-filter-trigger) Apply Search
-              a.btn.btn-outline(href="/preview/users") Reset
+              a.btn.btn-outline(href=directoryResetPath) Reset
           p.helper-text Showing #[span(data-filter-count)= users.length] of #{users.length} students
 
         section.section-card#member-directory

@@ -1,6 +1,12 @@
 extends layout
 include includes/ui.pug
 
+block pageVars
+  - var pageRole = "admin"
+  - var headerRoleLabel = typeof headerRoleLabel !== "undefined" ? headerRoleLabel : "Admin"
+  - var navLinks = typeof navLinks !== "undefined" ? navLinks : [{ label: "Dashboard", href: "/demo/admin/" }, { label: "Manage Society", href: "/demo/admin/manage-society/" }, { label: "Create Post", href: "/demo/admin/create-post/" }, { label: "Members", href: "/demo/admin/members/" }]
+  - var logoPath = typeof logoPath !== "undefined" ? logoPath : "/demo/admin/"
+
 block content
   - var formatSocietyName = function(email) {
   -   var localPart = email ? email.split("@")[0] : "society";
@@ -11,99 +17,77 @@ block content
   - };
   - var societyName = society && society.email ? formatSocietyName(society.email) : "Managed Society";
   - var membersList = typeof members !== "undefined" ? members : [];
-  - var postItems = typeof postItems !== "undefined" ? postItems : [];
   - var eventItems = typeof eventItems !== "undefined" ? eventItems : [];
+  - var dashboardPath = typeof dashboardPath !== "undefined" ? dashboardPath : "/demo/admin/";
 
-  +pageHeader("Manage Society", "Review the current society summary and move between posts, events, and members from one clearer admin management page.", societyName)
-    a.btn.btn-primary(href="/preview/users") Open Members
-    a.btn.btn-outline(href="/login") Back to Dashboard Access
+  +pageHeader("Manage Society", "Update the society profile, review members, and keep event information organised inside one structured organiser page.", societyName)
+    a.btn.btn-outline(href=dashboardPath) Back to Dashboard
 
   section.section-block
     +dashboardLayout()
-      +dashboardSidebar("Management Navigation", "Use this page as a society-specific organiser workspace.")
+      +dashboardSidebar("Management Sections", "Keep society details, membership, events, and the delete action clearly separated.")
         +dashboardNav([
-          { label: "Summary", href: "#summary", active: true },
-          { label: "Posts", href: "#posts" },
+          { label: "Society Details", href: "#society-details", active: true },
+          { label: "Members", href: "#members" },
           { label: "Events", href: "#events" },
-          { label: "Members", href: "#members" }
+          { label: "Danger Zone", href: "#danger-zone" }
         ])
-        .tag-stack
-          h3 Admin controls
-          .tag-list
-            span.tag Summary
-            span.tag Posts
-            span.tag Events
-            span.tag Members
 
       main.dashboard-main
-        section.section-card#summary
+        section.form-shell#society-details
           .section-heading
-            p.eyebrow Society Summary
-            h2 Current society snapshot
-            p Keep the main society information visible before moving into the more specific management panels.
-          dl.detail-list
-            .detail-row
-              dt Society name
-              dd= societyName
-            .detail-row
-              dt Contact email
-              dd= society && society.email ? society.email : "Not provided"
-            .detail-row
-              dt Members
-              dd= membersList.length
-          p.card-text= society && society.about_us_text ? society.about_us_text : "A fuller society summary can appear here when more profile content is available."
-          .btn-row
-            button.btn.btn-outline(type="button") Edit Society Profile
-            button.btn.btn-soft(type="button") View Public Page
-
-        section.section-card#posts
-          .section-heading
-            p.eyebrow Post Management
-            h2 Manage announcements, polls, and updates
-            p Keep post-related controls clearly separated from other organiser tasks.
-          +cardGrid(2)
-            +sharedCard("management-card", "Create", "Start a new post", "Move into a dedicated create-post flow for announcements, polls, and event-related updates.")
-              button.btn.btn-outline(type="button") Create Post
-            +sharedCard("management-card", "Queue", "Review existing posts", "A post queue can be shown here when organiser content data is available.")
-              if postItems.length
-                p.feed-meta #{postItems.length} items currently in view
-              else
-                p.feed-meta Placeholder queue
-
-        section.section-card#events
-          .section-heading
-            p.eyebrow Event Management
-            h2 Plan and review society events
-            p Keep event planning and attendance follow-up grouped together in one clear panel.
-          +cardGrid(2)
-            +sharedCard("management-card", "Event Planning", "Create or update events", "Use this area for future organiser event setup, scheduling, and publishing.")
-              button.btn.btn-outline(type="button") Create Event
-            +sharedCard("management-card", "Attendance", "Review RSVP follow-up", "Link event planning to future attendance tools without mixing it into unrelated admin controls.")
-              button.btn.btn-outline(type="button") Review RSVPs
-          if eventItems.length
-            .feed-stack
-              each item in eventItems
-                article.event-card.feed-card
-                  p.card-kicker Event
-                  h3.card-title= item.title || "Upcoming event"
-                  p.card-text= item.description || "More organiser event information will appear here when event data is available."
-                  p.feed-meta= item.event_date || "Planned event"
+            p.eyebrow Society Details
+            h2 Update the society profile
+            p Keep the core society information in one clean management form.
+          if society && society.logo_url
+            img.society-banner(src=society.logo_url, alt=societyName)
+          form.form-stack
+            +formInput("society-name", "Society Name", "text", "Enter the society name", societyName)
+            +formTextarea("society-description", "Society Description", "Write the society description", society && society.about_us_text ? society.about_us_text : "")
+            +formInput("society-image", "Society Image", "text", "Add an image URL", society && society.logo_url ? society.logo_url : "")
+            .btn-row
+              button.btn.btn-primary(type="button") Update
 
         section.section-card#members
           .section-heading
-            p.eyebrow Member Management
-            h2 Keep member information close to the rest of the workspace
-            p This panel keeps the member side of admin work clearly separated but easy to reach.
+            p.eyebrow Members
+            h2 Members in this society
+            p Keep the member information grouped beneath the profile form so organisers can review who is part of the society.
           if membersList.length
-            .card-grid.cols-2
+            .data-table
+              .data-row.data-row-header
+                span Name
+                span Student ID
+                span Email
+                span Status
               each member in membersList
-                article.user-card
-                  p.card-kicker Member
-                  h3.card-title #{member.first_name} #{member.last_name}
-                  p.card-text Student ID: #{member.student_id}
-                  p.feed-meta= member.email
-                  .btn-row
-                    a.btn.btn-outline(href="/preview/profile/" + member.student_id) View Profile
-                    button.btn.btn-soft(type="button") Note Member
+                .data-row
+                  span #{member.first_name} #{member.last_name}
+                  span= member.student_id
+                  span= member.email
+                  span Active member
           else
-            +emptyState("Member records will appear here", "Once member data is passed into this template, organisers can review it from the same management page.")
+            +emptyState("No members yet", "Member records will appear here once data is available.")
+
+        section.section-card#events
+          .section-heading
+            p.eyebrow Events
+            h2 Events connected to the society
+            p Show society events in a management view rather than a browse layout.
+          if eventItems.length
+            .feed-stack
+              each item in eventItems
+                article.management-card.feed-card
+                  p.card-kicker Event
+                  h3.card-title= item.title || "Society event"
+                  p.card-text= item.description || "Event information will appear here."
+                  p.feed-meta= item.event_date || "Upcoming event"
+          else
+            +emptyState("No events yet", "Event records will appear here once society events are available.")
+
+        section.section-card.danger-zone#danger-zone
+          .section-heading
+            p.eyebrow Delete Society
+            h2 Remove this society
+            p Keep destructive actions isolated at the bottom of the page so the organiser flow stays structured and clear.
+          button.btn.btn-danger(type="button") Delete Society

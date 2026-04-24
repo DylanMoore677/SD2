@@ -1,81 +1,80 @@
 extends layout
 include includes/ui.pug
 
+block pageVars
+  - var pageRole = "admin"
+  - var headerRoleLabel = typeof headerRoleLabel !== "undefined" ? headerRoleLabel : "Admin"
+  - var navLinks = typeof navLinks !== "undefined" ? navLinks : [{ label: "Dashboard", href: "/demo/admin/" }, { label: "Manage Society", href: "/demo/admin/manage-society/" }, { label: "Create Post", href: "/demo/admin/create-post/" }, { label: "Members", href: "/demo/admin/members/" }]
+  - var logoPath = typeof logoPath !== "undefined" ? logoPath : "/demo/admin/"
+
 block content
   - var postsCount = typeof postsCount !== "undefined" ? postsCount : 12;
   - var eventsCount = typeof eventsCount !== "undefined" ? eventsCount : 4;
   - var membersCount = typeof membersCount !== "undefined" ? membersCount : 38;
   - var rsvpCount = typeof rsvpCount !== "undefined" ? rsvpCount : 16;
-  - var quickItems = typeof quickItems !== "undefined" ? quickItems : [];
+  - var postItems = typeof postItems !== "undefined" ? postItems : [];
+  - var createPostPath = typeof createPostPath !== "undefined" ? createPostPath : "/demo/admin/create-post/";
+  - var manageSocietyPath = typeof manageSocietyPath !== "undefined" ? manageSocietyPath : "/demo/admin/manage-society/";
 
-  +pageHeader("Admin Dashboard", "Monitor society activity, keep the main organiser tools close by, and move through admin tasks from one clear dashboard workspace.", "Admin / Organiser")
-    a.btn.btn-primary(href="/preview/users") Open Member Directory
-    a.btn.btn-outline(href="/login") Back to Access
+  +pageHeader("Society Dashboard", "Use the organiser control panel to create new posts, review existing content, and keep the society structured around practical management tasks.", "Admin Dashboard")
+    a.btn.btn-primary(href=createPostPath) Create Post
+    a.btn.btn-outline(href=manageSocietyPath) Manage Society
 
   section.section-block
     +dashboardLayout()
-      +dashboardSidebar("Admin Navigation", "The dashboard keeps the organiser side more structured than the student flow while staying simple to use.")
+      +dashboardSidebar("Control Panel", "Keep creation, editing, deletion, and society management grouped into a clear organiser workspace.")
         +dashboardNav([
           { label: "Overview", href: "#overview", active: true },
-          { label: "Quick Actions", href: "#quick-actions" },
-          { label: "Management", href: "#management" },
-          { label: "Member Tools", href: "#member-tools" }
+          { label: "Post Actions", href: "#post-actions" },
+          { label: "Content Queue", href: "#content-queue" }
         ])
         .tag-stack
-          h3 Focus areas
+          h3 Main tools
           .tag-list
-            span.tag Posts
-            span.tag Events
-            span.tag Members
-            span.tag RSVPs
+            span.tag Create
+            span.tag Edit
+            span.tag Delete
+            span.tag Manage
 
       main.dashboard-main
         section.section-card#overview
           .section-heading
             p.eyebrow Dashboard Overview
             h2 Society activity at a glance
-            p Keep the most important organiser metrics visible first so the dashboard feels like a practical workspace.
+            p Keep the headline numbers visible before moving into the post management actions.
           +statsGrid
-            +statCard(postsCount, "Posts", "Track announcements, polls, and event posts from one top-level view.")
-            +statCard(eventsCount, "Events", "Keep upcoming event planning close to the rest of the organiser workflow.")
-            +statCard(membersCount, "Members", "Review the size of the community before moving into member tools.")
-            +statCard(rsvpCount, "RSVPs", "Stay ready for attendance tracking when RSVP data is available.")
+            +statCard(postsCount, "Posts", "Track published and draft content.")
+            +statCard(eventsCount, "Events", "Keep upcoming activity close to the dashboard.")
+            +statCard(membersCount, "Members", "Monitor the size of the society.")
+            +statCard(rsvpCount, "RSVPs", "Review attendance signals quickly.")
 
-        section.section-card#quick-actions
+        section.section-card#post-actions
           .section-heading
-            p.eyebrow Quick Actions
-            h2 Move quickly between admin tasks
-            p Use clear action cards instead of crowded controls so the dashboard stays easy to understand.
-          +cardGrid(2)
-            +sharedCard("management-card", "Publishing", "Create a new post", "Start an announcement, poll, or event draft from a dedicated organiser publishing flow.")
-              button.btn.btn-outline(type="button") Create Post
-            +sharedCard("management-card", "Members", "Review student records", "Jump into the member directory when you need to inspect student details or prepare follow-up.")
-              a.btn.btn-outline(href="/preview/users") Open Directory
-            +sharedCard("management-card", "Society", "Manage society profile", "Update how your society is presented from a cleaner admin-facing edit page.")
-              button.btn.btn-outline(type="button") Edit Profile
-            +sharedCard("management-card", "Attendance", "Review RSVP activity", "Keep attendance management visible alongside the rest of the organiser workflow.")
-              button.btn.btn-outline(type="button") View RSVPs
-
-        section.section-card#management
-          .section-heading
-            p.eyebrow Admin Structure
-            h2 Keep the organiser workflow role-based
-            p The dashboard is designed to separate admin controls from the public student journey without becoming visually heavy.
-          .flow-grid
-            +flowStep("1", "Check the overview", "Start with the high-level counts so you know where your attention is needed.")
-            +flowStep("2", "Choose the next management task", "Move into posts, society settings, members, or RSVP review from the quick action cards.")
-            +flowStep("3", "Return to the dashboard", "Use the sidebar to move back into the main admin overview whenever needed.")
-
-        section.section-card#member-tools
-          .section-heading
-            p.eyebrow Member Tools
-            h2 Workspace areas connected to the dashboard
-            p Keep the organiser side feeling joined-up by surfacing the next admin destinations clearly.
+            p.eyebrow Post Actions
+            h2 Create, edit, or delete posts
+            p The organiser home should feel like a management system, not a browse page.
           +cardGrid(3)
-            if quickItems.length
-              each item in quickItems
-                +sharedCard("dashboard-card", item.kicker || "Admin", item.title || "Dashboard item", item.description || "Additional admin detail will appear here when quick action data is available.")
-            else
-              +sharedCard("dashboard-card", "Directory", "Member directory", "Use the existing member directory to search student records and open profile pages.")
-              +sharedCard("dashboard-card", "Publishing", "Create post flow", "Announcements, events, and polls can all be started from a dedicated organiser post page.")
-              +sharedCard("dashboard-card", "Society Profile", "Edit society details", "Keep the public-facing society information accurate from a separate admin edit page.")
+            +sharedCard("management-card", "Create", "Create Post", "Open the clean post form and publish a new society update.")
+              a.btn.btn-outline(href=createPostPath) Create Post
+            +sharedCard("management-card", "Edit", "Edit Post", "Review existing society content and update the details when something changes.")
+              a.btn.btn-outline(href="#content-queue") Edit Posts
+            +sharedCard("management-card", "Delete", "Delete Post", "Remove outdated or incorrect content from the society feed when needed.")
+              a.btn.btn-outline(href="#content-queue") Delete Posts
+
+        section.section-card#content-queue
+          .section-heading
+            p.eyebrow Society Content
+            h2 Posts and event items in view
+            p Show the existing content in a practical queue so organisers can see what is currently live.
+          if postItems.length
+            .feed-stack
+              each item in postItems
+                article.management-card.feed-card
+                  p.card-kicker= item.type || "Post"
+                  h3.card-title= item.title || "Society content"
+                  p.card-text= item.description || "Current society content appears here."
+                  .btn-row
+                    a.btn.btn-outline(href=manageSocietyPath + "#content-queue") Edit
+                    button.btn.btn-danger(type="button") Delete
+          else
+            +emptyState("Society content will appear here", "Use the dashboard to create new posts, then manage them from this queue.")

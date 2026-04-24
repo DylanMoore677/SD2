@@ -1,0 +1,203 @@
+extends layout
+include includes/ui.pug
+include includes/society-tags.pug
+
+mixin studentHomeIcon(name)
+  svg.student-home-svg(viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true")
+    if name === "members"
+      path(d="M15 19v-1a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v1")
+      circle(cx="9.5" cy="7" r="3")
+      path(d="M16.5 5.2a3 3 0 0 1 0 5.6")
+      path(d="M18.5 19v-1a3 3 0 0 0-2-2.82")
+    else if name === "megaphone"
+      path(d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6l-5 4H4a1 1 0 0 0-1 1Z")
+      path(d="M17 8c1.6 1 1.6 7 0 8")
+      path(d="M20 6c3 2 3 10 0 12")
+    else if name === "calendar"
+      path(d="M8 2v4")
+      path(d="M16 2v4")
+      path(d="M3 10h18")
+      rect(x="3" y="6" width="18" height="15" rx="2")
+    else if name === "flash"
+      path(d="M13 2 5 14h6l-1 8 8-12h-6l1-8Z")
+    else if name === "star"
+      path(d="m12 3.5 2.6 5.28 5.82.85-4.21 4.1.99 5.8L12 16.77 6.8 19.53l.99-5.8-4.21-4.1 5.82-.85L12 3.5Z")
+    else if name === "grid"
+      rect(x="4" y="4" width="6" height="6" rx="1.25")
+      rect(x="14" y="4" width="6" height="6" rx="1.25")
+      rect(x="4" y="14" width="6" height="6" rx="1.25")
+      rect(x="14" y="14" width="6" height="6" rx="1.25")
+    else if name === "user"
+      circle(cx="12" cy="8" r="4")
+      path(d="M5 20a7 7 0 0 1 14 0")
+    else if name === "cap"
+      path(d="M2 9 12 4l10 5-10 5L2 9Z")
+      path(d="M6 11.5V15c0 1.66 2.69 3 6 3s6-1.34 6-3v-3.5")
+    else if name === "code"
+      path(d="m8 7-5 5 5 5")
+      path(d="m16 7 5 5-5 5")
+      path(d="m13 4-2 16")
+    else if name === "clapper"
+      rect(x="2" y="7" width="20" height="15" rx="2")
+      path(d="M2 12h20")
+      path(d="m2 7 3-4h4L6 7")
+      path(d="m9 7 3-4h4l-3 4")
+      path(d="m16 7 3-4h3")
+    else if name === "activity"
+      circle(cx="13" cy="4.5" r="1.8")
+      path(d="m8 21 2-5 2-2-2-2 1-4 3 2 2 3 4 1")
+      path(d="m7.5 13-3 3")
+    else if name === "arrow"
+      path(d="M5 12h14")
+      path(d="m13 6 6 6-6 6")
+    else
+      circle(cx="12" cy="12" r="8")
+
+block pageVars
+  - var pageRole = "student"
+  - var headerRoleLabel = typeof headerRoleLabel !== "undefined" ? headerRoleLabel : "Student"
+  - var logoPath = typeof logoPath !== "undefined" ? logoPath : "/demo/student/"
+  - var studentBasePath = logoPath.replace(/\/$/, "")
+  - var navLinks = typeof navLinks !== "undefined" ? navLinks : [{ label: "Home", href: studentBasePath + "/", exact: true }, { label: "Societies", href: studentBasePath + "/societies/" }, { label: "News", href: studentBasePath + "/feed/" }, { label: "Profile", href: studentBasePath + "/profile/1/", icon: "profile" }]
+
+block content
+  - var featuredSocieties = typeof featuredSocieties !== "undefined" ? featuredSocieties : [];
+  - var latestUpdates = typeof latestUpdates !== "undefined" ? latestUpdates : [];
+  - var currentUser = typeof currentUser !== "undefined" ? currentUser : null;
+  - var joinedSocieties = currentUser && currentUser.joined_societies ? currentUser.joined_societies : [];
+  - var isGuest = typeof isGuest !== "undefined" ? isGuest : false;
+  - var browsePath = typeof browsePath !== "undefined" ? browsePath : "/preview/societies";
+  - var profileLink = typeof profilePath !== "undefined" ? profilePath : studentBasePath + "/profile/1/";
+  - var newsPath = typeof feedPath !== "undefined" ? feedPath : studentBasePath + "/feed/";
+  - var registerLink = typeof registerPath !== "undefined" ? registerPath : "/register/";
+  - var displayName = currentUser && currentUser.first_name ? currentUser.first_name : (isGuest ? "Guest" : "Student");
+  - var heroImageSrc = typeof dashboardHeroImage !== "undefined" ? dashboardHeroImage : "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1400&q=80";
+  - var primarySociety = joinedSocieties.length ? joinedSocieties[0] : (isGuest ? "Open guest access" : "Your first society will appear here");
+
+  section.section-block.student-home-dashboard
+    .student-home-dashboard-shell
+      .student-home-dashboard-copy
+        p.student-home-welcome= isGuest ? "Explore Roehampton" : "Welcome back,"
+        h1.student-home-dashboard-title
+          if isGuest
+            | Explore your
+            br
+            | society space
+          else
+            | #{displayName}, here is your
+            br
+            | society space
+        p.student-home-dashboard-text= isGuest ? "Browse societies, sample recent updates, and get a feel for student communities before creating your account." : "Your joined societies and recent updates should stay easy to spot without getting lost in extra space."
+        .student-home-stat-grid
+          article.student-home-stat-card
+            .student-home-icon-box.is-members
+              +studentHomeIcon("members")
+            .student-home-stat-copy
+              strong= joinedSocieties.length
+              span= joinedSocieties.length === 1 ? "Joined Society" : "Joined Societies"
+          article.student-home-stat-card
+            .student-home-icon-box.is-updates
+              +studentHomeIcon("megaphone")
+            .student-home-stat-copy
+              strong= latestUpdates.length
+              span= latestUpdates.length === 1 ? "Recent Update" : "Recent Updates"
+        .student-home-primary-pill= primarySociety
+        .student-home-action-row
+          a.btn.btn-primary.student-dashboard-btn(href=browsePath)
+            span.student-btn-icon
+              +studentHomeIcon("grid")
+            span Browse Societies
+          if isGuest
+            a.btn.btn-outline.student-dashboard-btn(href=registerLink)
+              span.student-btn-icon
+                +studentHomeIcon("user")
+              span Create Account
+          else
+            a.btn.btn-outline.student-dashboard-btn(href=profileLink)
+              span.student-btn-icon
+                +studentHomeIcon("user")
+              span View My Profile
+      .student-home-dashboard-visual
+        .student-home-hero-visual
+          img(src=heroImageSrc, alt="University campus")
+          .student-home-hero-callout
+            .student-home-callout-icon
+              +studentHomeIcon("cap")
+            .student-home-callout-copy
+              strong Discover. Connect. Belong.
+              p Explore student communities and make the most of your university life.
+
+  section.section-block.student-home-updates
+    .student-home-section-head
+      .student-home-section-title
+        .student-home-section-icon
+          +studentHomeIcon("flash")
+        h2 What is happening now
+      a.student-home-section-link(href=newsPath)
+        span View all news
+        span.student-link-arrow
+          +studentHomeIcon("arrow")
+    .card-grid.student-home-news-grid
+      if latestUpdates.length
+        each item in latestUpdates.slice(0, 3)
+          - var updateTime = item.event_date || item.created_at || "Recent activity";
+          - var updateSociety = item.society_name || "Student update";
+          - var updateTone = "news";
+          - var updateIcon = "flash";
+          - if ((item.type || "").toLowerCase() === "announcement") { updateTone = "announcement"; updateIcon = "megaphone"; } else if ((item.type || "").toLowerCase() === "event") { updateTone = "event"; updateIcon = "calendar"; }
+          article.event-card.student-news-card(class="is-" + updateTone)
+            .student-news-top
+              .student-home-icon-box(class="is-" + updateTone)
+                +studentHomeIcon(updateIcon)
+              p.student-news-time= updateTime
+            p.student-news-kicker= item.type || "Update"
+            h3.card-title= item.title || "Society update"
+            p.card-text= item.content || item.description || "Recent student-facing activity appears here."
+            span.student-news-divider(aria-hidden="true")
+            p.student-news-society= updateSociety
+      else
+        article.event-card.student-news-card.is-news
+          .student-news-top
+            .student-home-icon-box.is-news
+              +studentHomeIcon("flash")
+            p.student-news-time Recent activity
+          p.student-news-kicker Update
+          h3.card-title Recent updates will appear here
+          p.card-text This area is ready for student announcements, events, and society news.
+          span.student-news-divider(aria-hidden="true")
+          p.student-news-society Student feed
+
+  section.section-block.student-home-discovery
+    .student-home-section-head
+      .student-home-section-title
+        .student-home-section-icon
+          +studentHomeIcon("star")
+        h2 Communities you might like
+      a.student-home-section-link(href=browsePath)
+        span Explore all societies
+        span.student-link-arrow
+          +studentHomeIcon("arrow")
+    .card-grid.student-home-community-grid
+      each society in featuredSocieties.slice(0, 3)
+        - var societyName = society && society.email ? society.email.split("@")[0].split(/[._-]/).filter(Boolean).map(function(word) { return word.charAt(0).toUpperCase() + word.slice(1); }).join(" ") + " Society" : "Society";
+        - var leadTag = Array.isArray(society && society.tags) && society.tags.length ? society.tags[0] : (typeof (society && society.tags) === "string" ? society.tags.split(",")[0].trim() : "Community");
+        - var communityTone = "community";
+        - var communityIcon = "members";
+        - if (leadTag && leadTag.toLowerCase() === "technology") { communityTone = "technology"; communityIcon = "code"; } else if (leadTag && leadTag.toLowerCase() === "arts") { communityTone = "arts"; communityIcon = "clapper"; } else if (leadTag && leadTag.toLowerCase() === "sports") { communityTone = "sports"; communityIcon = "activity"; }
+        article.society-card.student-community-card(class="is-" + communityTone)
+          .student-community-media
+            if society && society.logo_url
+              img.society-thumb(src=society.logo_url, alt=societyName)
+            if leadTag
+              span.student-community-category= leadTag
+          .student-community-body
+            .student-community-title-row
+              .student-home-icon-box(class="is-" + communityTone)
+                +studentHomeIcon(communityIcon)
+              h3.card-title= societyName
+            p.card-text= society.about_us_text || "Society information will appear here when content is available."
+            +societyTags(society)
+            a.btn.btn-outline.student-community-link(href=browsePath + "/" + society.society_id)
+              span View Society
+              span.student-link-arrow
+                +studentHomeIcon("arrow")

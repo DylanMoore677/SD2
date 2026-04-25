@@ -1,5 +1,4 @@
 extends layout
-include includes/society-tags.pug
 include includes/ui.pug
 
 block pageVars
@@ -12,6 +11,8 @@ block pageVars
 block content
   - var societiesBasePath = typeof societiesBasePath !== "undefined" ? societiesBasePath : studentBasePath + "/societies";
   - var recentUpdates = typeof societyUpdates !== 'undefined' ? societyUpdates : [];
+  - var isMember = typeof isMember !== "undefined" ? isMember : false;
+  - var rsvpBase = typeof rsvpBase !== "undefined" ? rsvpBase : "/student/rsvp";
   - var formatSocietyName = function(email) {
   -   var localPart = email ? email.split("@")[0] : "society";
   -   var words = localPart.split(/[._-]/).filter(Boolean).map(function(word) {
@@ -22,49 +23,38 @@ block content
   - var societyName = formatSocietyName(society && society.email);
   - var memberCount = members ? members.length : 0;
 
-  +pageHeader(societyName, society && society.about_us_text ? society.about_us_text : "Read the society information, preview current posts, and decide whether you want to join.", "Society")
+  +pageHeader(societyName)
 
   section.section-block
     .society-hero-grid
       section.section-card
-        if society && society.logo_url
-          img.society-banner(src=society.logo_url, alt=societyName)
         .section-heading
           p.eyebrow Society Information
           h2 About this society
+          if society && society.email
+            p.society-contact-email Contact email: #{society.email}
           p= society && society.about_us_text ? society.about_us_text : "More society information will appear here when it becomes available."
-        .tag-stack
-          h3 Tags and categories
-          +societyTags(society)
 
       aside.sidebar-stack
         section.section-card
           .section-heading
-            p.eyebrow Join
-            h2 Ready to join?
-            p Keep the main membership action visible while students are deciding.
+            p.eyebrow Membership
+            h2= isMember ? "You are a member" : "Ready to join?"
+            p= isMember ? "Click below to leave this society." : "Become a member to follow this society's posts and events."
           .btn-row
-            button.btn.btn-primary(type="button") Join Society
-        section.section-card
-          .section-heading
-            p.eyebrow Quick Details
-            h2 Snapshot
-          dl.detail-list
-            .detail-row
-              dt Society
-              dd= societyName
-            .detail-row
-              dt Email
-              dd= society && society.email ? society.email : "Not available"
-            .detail-row
-              dt Members
-              dd= memberCount
+            if isMember && typeof leavePath !== "undefined" && leavePath
+              form(method="post", action=leavePath)
+                button.btn.btn-soft(type="submit") Leave Society
+            else if typeof joinPath !== "undefined" && joinPath
+              form(method="post", action=joinPath)
+                button.btn.btn-primary(type="submit") Join Society
+            else
+              button.btn.btn-primary(type="button") Join Society
 
   section.section-block
     .section-heading
       p.eyebrow Society Posts
       h2 Latest posts and updates
-      p Keep society content readable and easy to scroll through before the student decides to join.
     .card-grid.news-grid
       if recentUpdates.length
         each item in recentUpdates
@@ -73,6 +63,9 @@ block content
             h3.card-title= item.title || "Society post"
             p.card-text= item.content || item.description || "More post detail will appear here when content is available."
             p.feed-meta= item.created_at || item.event_date || "Recent update"
+            if isMember && (item.type === "Event" || item.type === "event") && item.post_id
+              form(method="post", action=rsvpBase + "/" + item.post_id)
+                button.btn.btn-outline(type="submit")= item.rsvped ? "Remove RSVP" : "RSVP"
       else
         article.event-card.news-card
           p.card-kicker Announcement

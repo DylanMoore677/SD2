@@ -39,12 +39,9 @@ block content
             p.eyebrow Society Details
             h2 Update the society profile
             p Keep the core society information in one clean management form.
-          if society && society.logo_url
-            img.society-banner(src=society.logo_url, alt=societyName)
           form.form-stack
             +formInput("society-name", "Society Name", "text", "Enter the society name", societyName)
             +formTextarea("society-description", "Society Description", "Write the society description", society && society.about_us_text ? society.about_us_text : "")
-            +formInput("society-image", "Society Image", "text", "Add an image URL", society && society.logo_url ? society.logo_url : "")
             .btn-row
               button.btn.btn-primary(type="button") Update
 
@@ -57,15 +54,15 @@ block content
             .data-table
               .data-row.data-row-header
                 span Name
-                span Student ID
                 span Email
-                span Status
+                span Remove
               each member in membersList
                 .data-row
                   span #{member.first_name} #{member.last_name}
-                  span= member.student_id
                   span= member.email
-                  span Active member
+                  span
+                    form(method="post", action="/admin/manage-society/members/" + member.student_id + "/remove")
+                      button.btn.btn-danger.btn-small(type="submit") Remove
           else
             +emptyState("No members yet", "Member records will appear here once data is available.")
 

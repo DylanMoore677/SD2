@@ -1,5 +1,4 @@
 extends layout
-include includes/society-tags.pug
 include includes/ui.pug
 
 block pageVars
@@ -29,7 +28,7 @@ block content
       p.societies-search-label Search societies
       .societies-search-row
         .societies-search-field
-          input#society-search.form-input(type="search", name="q", placeholder="Search by society name or keyword" data-filter-input)
+          input#society-search.form-input(type="search", name="q", placeholder="Search by society name" data-filter-input)
         button.btn.btn-primary.societies-search-button(type="button" data-filter-trigger) Search
       p.helper-text.societies-search-count Showing #[span(data-filter-count)= societies.length] of #{societies.length} societies
 
@@ -38,13 +37,9 @@ block content
         - var societyName = formatSocietyName(society.email);
         - var searchText = [societyName, society.email, society.about_us_text, society.tags, society.categories, society.tag_list].filter(Boolean).join(" ");
         article.society-card.student-society-card(data-filter-item data-search-text=searchText)
-          if society && society.logo_url
-            img.society-thumb(src=society.logo_url, alt=societyName)
           .student-society-card-body
             p.card-kicker Society
             h3.card-title= societyName
-            p.card-text= society.about_us_text || "A short society summary will appear here when it is available."
-            +societyTags(society)
             a.btn.btn-primary.student-society-link(href=listBasePath + "/" + society.society_id) View Society
 
     div(hidden data-filter-empty)

@@ -74,11 +74,10 @@ block content
             p Organisers can scan student entries quickly here and open the existing student profile pages for more detail.
           .card-grid.cols-2
             each user in users
-              - var userSearchText = [user.first_name, user.last_name, user.email, user.student_id].filter(Boolean).join(" ");
+              - var userSearchText = [user.first_name, user.last_name, user.email].filter(Boolean).join(" ");
               article.user-card(data-filter-item data-search-text=userSearchText)
                 p.card-kicker Student record
                 h3.card-title #{user.first_name} #{user.last_name}
-                p.card-text Student ID: #{user.student_id}
                 p.feed-meta= user.email
                 .btn-row
                   a.btn.btn-outline(href=profilePath + "/" + user.student_id) View Profile

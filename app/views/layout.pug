@@ -33,7 +33,7 @@ html(lang="en")
                         data-nav-exact=item.exact ? "true" : false
                       )
                         if item.icon === "profile"
-                          span.sr-only= item.label
+                          span= item.label
                           span.nav-profile-glyph(aria-hidden="true")
                         else
                           = item.label

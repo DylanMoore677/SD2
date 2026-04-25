@@ -9,8 +9,10 @@ block pageVars
 
 block content
   - var dashboardPath = typeof dashboardPath !== "undefined" ? dashboardPath : "/demo/admin/";
+  - var createPostPath = typeof createPostPath !== "undefined" ? createPostPath : "/admin/create-post/";
+  - var postCreated = typeof postCreated !== "undefined" ? postCreated : false;
 
-  +pageHeader("Create New Post", "Create a society update using a simple organiser form with only the fields needed for the post itself.", "Post Creation")
+  +pageHeader("Create New Post", "Create an announcement or event for your society.", "Post Creation")
     a.btn.btn-outline(href=dashboardPath) Back to Dashboard
 
   section.section-block
@@ -19,13 +21,28 @@ block content
         .section-heading
           p.eyebrow Post Form
           h2 Create a new society post
-          p Keep the post form clean and practical for organisers.
-        form.form-stack
-          +formInput("post-title", "Title", "text", "Enter the post title")
-          +formTextarea("post-description", "Description", "Write the post description")
-          +formInput("rsvp-date", "RSVP Date", "text", "Add an RSVP date")
-          .btn-row
-            button.btn.btn-primary(type="button") Create Post
+
+        if postCreated
+          p.form-success Post created successfully.
+
+        section(data-role-switcher data-default-role="announcement")
+          .segmented-controls.auth-switch
+            button.role-tab(type="button" data-role-target="announcement") Announcement
+            button.role-tab(type="button" data-role-target="event") Event
+
+          section.auth-panel(data-role-panel="announcement")
+            form.form-stack(method="post", action=createPostPath)
+              input(type="hidden" name="type" value="announcement")
+              +formTextarea("post-content-ann", "Content", "Write your announcement...", null, "content")
+              .btn-row
+                button.btn.btn-primary(type="submit") Create Announcement
+
+          section.auth-panel(data-role-panel="event" hidden)
+            form.form-stack(method="post", action=createPostPath)
+              input(type="hidden" name="type" value="event")
+              +formTextarea("post-content-evt", "Content", "Write your event details...", null, "content")
+              .btn-row
+                button.btn.btn-primary(type="submit") Create Event
 
       aside.sidebar-stack
         section.section-card
@@ -34,6 +51,5 @@ block content
             h2 What to include
             p Keep the information focused so students can read it quickly once it appears in the feed.
           .flow-grid
-            +flowStep("1", "Write a clear title", "Use a short, specific title that matches the announcement or event.")
-            +flowStep("2", "Add the main detail", "Put the essential description in the post body.")
-            +flowStep("3", "Set the RSVP date", "Keep the deadline visible if students need to respond.")
+            +flowStep("1", "Choose post type", "Select Announcement for general news or Event for something students can attend.")
+            +flowStep("2", "Write the content", "Put the essential detail in the post body — keep it clear and concise.")

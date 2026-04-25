@@ -80,7 +80,6 @@ block content
   - var isGuest = typeof isGuest !== "undefined" ? isGuest : false;
   - var fullName = [user && user.first_name, user && user.last_name].filter(Boolean).join(" ");
   - var displayName = fullName || (isGuest ? "Guest User" : "Student Name");
-  - var displayId = user && user.student_id ? user.student_id : (isGuest ? "Guest" : "Not available");
   - var displayEmail = user && user.email ? user.email : (isGuest ? "guest@preview" : "Not available");
   - var joinedSocieties = user && user.joined_societies ? user.joined_societies : [];
   - var browsePath = typeof browsePath !== "undefined" ? browsePath : studentBasePath + "/societies/";
@@ -91,9 +90,8 @@ block content
   - var upcomingEventsCount = typeof upcomingEventsCount !== "undefined" ? upcomingEventsCount : (isGuest ? 0 : Math.max(joinedCount + 2, joinedCount ? 3 : 0));
   - var recentUpdatesCount = typeof recentUpdatesCount !== "undefined" ? recentUpdatesCount : (isGuest ? 0 : Math.max(joinedCount + 3, joinedCount ? 4 : 0));
   - var activityItems = [{ icon: "members", value: joinedCount, label: "Joined Societies" }, { icon: "event", value: upcomingEventsCount, label: "Upcoming Events" }, { icon: "updates", value: recentUpdatesCount, label: "Recent Updates" }];
-  //- Frontend-only metadata keeps demo profile rows populated without backend joins.
-  - var communityMeta = { "Coding Society": { id: 1, image: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=900&q=80", description: "Building projects, solving problems, and learning together through code." }, "Film Society": { id: 2, image: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&q=80", description: "Weekly screenings, themed discussions, and student reviews across different genres." }, "Running Society": { id: 3, image: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=900&q=80", description: "Friendly campus runs, training sessions, and wellbeing-focused meetups every week." } };
-  - var joinedCommunities = joinedSocieties.map(function(name) { var meta = communityMeta[name] || {}; return { name: name, id: meta.id || null, image: meta.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80", description: meta.description || (isGuest ? "Preview community details while browsing as a guest." : "Community details will appear here once profile data is fully connected."), badge: isGuest ? "Preview" : "Member" }; });
+  - var societyObjects = typeof joinedSocietyObjects !== "undefined" ? joinedSocietyObjects : [];
+  - var joinedCommunities = societyObjects.map(function(s) { var formatName = function(email) { var lp = email ? email.split("@")[0] : "society"; var words = lp.split(/[._-]/).filter(Boolean).map(function(w) { return w.charAt(0).toUpperCase() + w.slice(1); }); return (words.join(" ") || "Society") + " Society"; }; return { name: formatName(s.email), id: s.society_id, description: s.about_us_text || "Community details will appear here.", badge: "Member" }; });
 
   header.page-header.student-profile-header
     .student-profile-header-copy
@@ -114,11 +112,6 @@ block content
               +profileIcon("user")
             span.student-profile-detail-label Full Name
             strong.student-profile-detail-value= displayName
-          .student-profile-detail-row
-            span.student-profile-detail-icon
-              +profileIcon("id")
-            span.student-profile-detail-label Student ID
-            strong.student-profile-detail-value= displayId
           .student-profile-detail-row
             span.student-profile-detail-icon
               +profileIcon("mail")
@@ -161,10 +154,8 @@ block content
         .student-profile-community-list
           each community in joinedCommunities
             article.student-profile-community-item
-              img.student-profile-community-image(src=community.image, alt=community.name, loading="lazy")
               .student-profile-community-body
                 h3.student-profile-community-title= community.name
-                p.student-profile-community-text= community.description
                 span.student-profile-community-badge= community.badge
               if community.id
                 a.btn.btn-outline.student-profile-community-link(href=studentBasePath + "/societies/" + community.id + "/")
@@ -200,7 +191,8 @@ block content
             span.student-profile-button-icon
               +profileIcon("logout")
             span Logout
-          button.btn.btn-danger.student-profile-inline-button.student-profile-delete-button(type="button")
-            span.student-profile-button-icon
-              +profileIcon("delete")
-            span Delete Account
+          form(method="post", action=studentBasePath + "/account/delete", onsubmit="return confirm('Are you sure? This cannot be undone.')")
+            button.btn.btn-danger.student-profile-inline-button.student-profile-delete-button(type="submit")
+              span.student-profile-button-icon
+                +profileIcon("delete")
+              span Delete Account

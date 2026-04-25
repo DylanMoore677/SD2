@@ -26,13 +26,15 @@ block content
             p.eyebrow Student Registration
             h2 Create your student account
             p Keep the form simple, clear, and coursework-appropriate.
-          form.form-stack
-            +formInput("student-id", "Student ID", "text", "Enter your student ID")
-            +formInput("student-email", "Email", "email", "Enter your university email")
-            +formInput("student-name", "Full Name", "text", "Enter your full name")
-            +formInput("student-course", "Course", "text", "Add your course or programme")
+          if typeof registerError !== "undefined" && registerError && defaultRegistrationRole === "student"
+            p.form-error= registerError
+          form.form-stack(method="post", action="/register")
+            +formInput("student-email", "Email", "email", "Enter your university email", null, "email")
+            +formInput("student-first-name", "First Name", "text", "Enter your first name", null, "first_name")
+            +formInput("student-last-name", "Last Name", "text", "Enter your last name", null, "last_name")
+            +formInput("student-password", "Password", "password", "Create a password", null, "password")
             .btn-row
-              a.btn.btn-primary(href=studentHomePath) Create Student Account
+              button.btn.btn-primary(type="submit") Create Student Account
               a.btn.btn-outline(href=loginPath) Back to Login
 
         section.auth-panel(data-role-panel="admin" hidden)
@@ -40,18 +42,13 @@ block content
             p.eyebrow Society Registration
             h2 Register a society
             p Admin registration doubles as society registration so the society can appear in the platform.
-          form.form-stack
-            +formInput("society-name", "Society Name", "text", "Enter the society name")
-            +formInput("society-email", "Email", "email", "Enter the society email")
-            +formInput("society-image", "Society Image", "text", "Add an image URL")
-            +formTextarea("society-description", "Society Description", "Write a short society description")
+          if typeof registerError !== "undefined" && registerError && defaultRegistrationRole === "admin"
+            p.form-error= registerError
+          form.form-stack(method="post", action="/register/admin")
+            +formInput("society-email", "Email", "email", "Enter the society email", null, "email")
+            +formTextarea("society-description", "About the Society", "Write a short society description", null, "about_us_text")
+            +formInput("society-password", "Password", "password", "Create a password", null, "password")
             .btn-row
-              a.btn.btn-primary(href=adminHomePath) Create Society
+              button.btn.btn-primary(type="submit") Register Society
               a.btn.btn-outline(href=loginPath) Back to Login
 
-      section.section-card.auth-choice-card
-        .section-heading
-          p.eyebrow Not Ready?
-          h2 Continue browsing first
-          p You can still explore the frontend as a guest and come back to register later.
-        a.btn.btn-soft(href=guestPath) Continue as Guest

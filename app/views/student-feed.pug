@@ -66,21 +66,17 @@ block pageVars
 
 block content
   - var feedItems = typeof feedItems !== "undefined" ? feedItems : [];
-  //- Frontend-only fallback imagery keeps the routed feed and preview pages aligned.
-  - var feedImageMap = { "Coding Society room change": "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80", "Running Society morning loop": "https://images.unsplash.com/photo-1502904550040-7534597429ae?auto=format&fit=crop&w=900&q=80", "Film Society genre vote": "https://images.unsplash.com/photo-1513106580091-1d82408b8cd6?auto=format&fit=crop&w=900&q=80", "Film Society post-screening discussion": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=80", "Coding Society": "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80", "Film Society": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=80", "Running Society": "https://images.unsplash.com/photo-1502904550040-7534597429ae?auto=format&fit=crop&w=900&q=80" };
-  - var feedSummary = [{ key: "Announcement", label: "Announcements", icon: "announcement" }, { key: "Event", label: "Events", icon: "event" }, { key: "Poll", label: "Polls", icon: "poll" }, { key: "General", label: "General", icon: "general" }];
-  - var feedCounts = { Announcement: 0, Event: 0, Poll: 0, General: 0 };
+  - var rsvpBase = typeof rsvpBase !== "undefined" ? rsvpBase : "/student/rsvp";
+  - var feedSummary = [{ key: "Announcement", label: "Announcements", icon: "announcement" }, { key: "Event", label: "Events", icon: "event" }];
+  - var feedCounts = { Announcement: 0, Event: 0 };
   - var societyCounts = {};
   - feedItems.forEach(function(item) {
-  -   var itemType = item.type || "General";
-  -   if (!feedCounts[itemType]) {
-  -     feedCounts[itemType] = 0;
-  -   }
-  -   feedCounts[itemType] += 1;
+  -   var itemType = item.type || "Announcement";
+  -   if (feedCounts[itemType] !== undefined) feedCounts[itemType] += 1;
   -   var sourceName = item.society_name || "Joined society";
   -   societyCounts[sourceName] = (societyCounts[sourceName] || 0) + 1;
   - });
-  - var totalUpdates = feedItems.length;
+  - var totalPosts = feedItems.length;
   - var popularSocieties = Object.keys(societyCounts).map(function(name) { return { name: name, count: societyCounts[name] }; }).sort(function(a, b) { return b.count - a.count || a.name.localeCompare(b.name); }).slice(0, 3);
 
   header.page-header.news-page-header
@@ -93,16 +89,12 @@ block content
         button.news-filter-pill.is-active(type="button" data-feed-filter="all" aria-pressed="true")
           span.news-filter-pill-icon
             +newsPageIcon("all")
-          span All Updates
+          span All Posts
         each summaryItem in feedSummary
           button.news-filter-pill(type="button" data-feed-filter=summaryItem.key.toLowerCase() aria-pressed="false")
             span.news-filter-pill-icon
               +newsPageIcon(summaryItem.icon)
             span= summaryItem.label
-      label.student-feed-search
-        span.student-feed-search-icon
-          +newsPageIcon("search")
-        input.form-input(type="search", name="news-search", placeholder="Search news...", aria-label="Search news" data-feed-search)
 
     .student-news-layout
       .student-feed-stream(data-feed-stream)
@@ -110,7 +102,7 @@ block content
           each item in feedItems
             - var feedSource = item.society_name || "Joined society";
             - var feedDate = item.created_at || item.event_date || "Recently";
-            - var feedImage = feedImageMap[item.title] || item.image_url || feedImageMap[feedSource] || null;
+            - var feedImage = item.image_url || null;
             - var feedType = item.type || "General";
             - var feedTone = feedType.toLowerCase();
             - var feedSearchText = [item.title, item.content, item.description, feedSource, feedDate, feedType].filter(Boolean).join(" ");
@@ -120,8 +112,6 @@ block content
               .student-feed-card-body
                 .student-feed-card-top
                   p.student-feed-card-badge(class="is-" + feedTone)= feedType
-                  button.news-save-button(type="button", aria-label="Bookmark this update")
-                    +newsPageIcon("bookmark")
                 h3.card-title= item.title || item.society_name || "Society update"
                 p.card-text= item.content || item.description || "More detail will appear here when student feed content is available."
                 p.student-feed-meta
@@ -130,6 +120,9 @@ block content
                     span= feedSource
                   span.student-feed-meta-divider |
                   span= feedDate
+                if feedType === "Event" && item.post_id
+                  form(method="post", action=rsvpBase + "/" + item.post_id)
+                    button.btn.btn-outline.student-rsvp-btn(type="submit")= item.rsvped ? "Remove RSVP" : "RSVP"
         else
           article.student-feed-card.is-general
             .student-feed-card-body
@@ -149,7 +142,7 @@ block content
 
       aside.student-news-sidebar
         section.student-news-side-card
-          h3.card-title News at a glance
+          h3.card-title Posts at a glance
           ul.student-news-summary-list
             each summaryItem in feedSummary
               li.student-news-summary-row
@@ -159,8 +152,8 @@ block content
                   span= summaryItem.label
                 strong.student-news-summary-count= feedCounts[summaryItem.key] || 0
           .student-news-total
-            span Total updates
-            strong= totalUpdates
+            span Total posts
+            strong= totalPosts
 
         section.student-news-side-card
           h3.card-title Popular societies
@@ -174,15 +167,9 @@ block content
                     +newsPageIcon(societyIcon)
                   .student-popular-copy
                     strong= society.name
-                    span= society.count + (society.count === 1 ? " update" : " updates")
+                    span= society.count + (society.count === 1 ? " post" : " posts")
           else
-            p.card-text Joined societies will appear here once updates start coming through.
+            p.card-text Joined societies will appear here once posts start coming through.
           a.student-side-link(href=studentBasePath + "/societies/")
             span View all societies
             span.student-side-link-arrow &rarr;
-
-        section.student-news-side-card.student-news-side-card--bookmark
-          h3.card-title Stay in the loop
-          p.card-text Bookmark important updates to find them easily later.
-          span.student-news-bookmark-chip
-            +newsPageIcon("bookmark")

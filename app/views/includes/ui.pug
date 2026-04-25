@@ -74,15 +74,17 @@ mixin authLoginEntry(studentHomePath, adminHomePath, guestPath, registerPath, ad
     .auth-layout.auth-login-layout(
       data-login-root
       data-default-role=initialRole
-      data-student-path=studentHomePath
-      data-admin-path=adminHomePath
+      data-student-path="/login"
+      data-admin-path="/login"
       data-student-register-path=registerPath
       data-admin-register-path=adminRegisterPath || registerPath
     )
       section.form-shell.auth-main-card.auth-login-card
         .section-heading.auth-login-heading
           h2 Login
-        form.form-stack(method="get", action=studentHomePath, data-login-form)
+        if typeof loginError !== "undefined" && loginError
+          p.form-error Incorrect email or password. Please try again.
+        form.form-stack(method="post", action="/login", data-login-form)
           input(type="hidden", name="role", value=initialRole, data-login-role-input)
           .form-group.auth-role-picker
             label Login as
@@ -90,8 +92,8 @@ mixin authLoginEntry(studentHomePath, adminHomePath, guestPath, registerPath, ad
               button.role-tab(type="button", data-login-role="student") Student
               button.role-tab(type="button", data-login-role="admin") Admin
           p.auth-role-copy(data-login-copy) Student access opens your profile, societies, and news feed.
-          +formInput("login-email", "Email", "email", "Enter your email")
-          +formInput("login-password", "Password", "password", "Enter your password")
+          +formInput("login-email", "Email", "email", "Enter your email", null, "email")
+          +formInput("login-password", "Password", "password", "Enter your password", null, "password")
           .btn-row.auth-login-actions
             button.btn.btn-primary(type="submit") Login
             a.btn.btn-outline(
@@ -100,11 +102,10 @@ mixin authLoginEntry(studentHomePath, adminHomePath, guestPath, registerPath, ad
               data-student-register-label="Register"
               data-admin-register-label="Register a Society"
             ) Register
-            a.btn.btn-soft.btn-small.auth-guest-link(href=guestPath) Login as Guest
       section.section-card.auth-login-support
         .section-heading.auth-support-heading
           h3 Welcome to Society Hub
-          p Sign in to continue to the platform, or browse first as a guest.
+          p Sign in to continue to the platform.
         .auth-support-list
           article.auth-support-item
             p.card-kicker Student
@@ -112,19 +113,16 @@ mixin authLoginEntry(studentHomePath, adminHomePath, guestPath, registerPath, ad
           article.auth-support-item
             p.card-kicker Admin
             p.card-text Open the organiser dashboard to manage posts, members, events, and society details.
-          article.auth-support-item
-            p.card-kicker Guest
-            p.card-text Browse societies before creating an account so you can explore the platform without any data issues.
 
-mixin formInput(id, label, type, placeholder, value)
+mixin formInput(id, label, type, placeholder, value, name)
   .form-group
     label(for=id)= label
-    input.form-input(id=id, type=type || "text", placeholder=placeholder, value=value || "")
+    input.form-input(id=id, name=name || id, type=type || "text", placeholder=placeholder, value=value || "")
 
-mixin formTextarea(id, label, placeholder, value)
+mixin formTextarea(id, label, placeholder, value, name)
   .form-group
     label(for=id)= label
-    textarea.form-textarea(id=id, placeholder=placeholder)= value || ""
+    textarea.form-textarea(id=id, name=name || id, placeholder=placeholder)= value || ""
 
 mixin statsGrid()
   .stats-grid

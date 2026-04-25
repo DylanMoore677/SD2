@@ -43,13 +43,6 @@ const demoPaths = Object.freeze({
     adminBase: "/demo/admin"
 });
 
-// Derive a display name from a society email (e.g. "coding@..." -> "Coding Society")
-function formatSocietyName(email) {
-    if (!email) return 'Society';
-    const localPart = email.split('@')[0];
-    const words = localPart.split(/[._-]/).filter(Boolean).map(w => w.charAt(0).toUpperCase() + w.slice(1));
-    return (words.join(' ') || 'Society') + ' Society';
-}
 
 function formatDate(dt) {
     if (!dt) return 'Recent';
@@ -326,11 +319,11 @@ app.post('/register', async function(req, res) {
 });
 
 app.post('/register/admin', async function(req, res) {
-    const { email, about_us_text, password } = req.body;
+    const { name, email, about_us_text, password } = req.body;
     try {
         await db.query(
-            'INSERT INTO Society (email, about_us_text, password) VALUES (?, ?, ?)',
-            [email, about_us_text || '', password || '']
+            'INSERT INTO Society (name, email, about_us_text, password) VALUES (?, ?, ?, ?)',
+            [name || '', email, about_us_text || '', password || '']
         );
         res.redirect('/login');
     } catch (err) {
@@ -387,7 +380,7 @@ app.get(`${studentBase}/`, requireAuth('student'), async function(req, res) {
             const ids = joinedRows.map(s => s.society_id);
             const placeholders = ids.map(() => '?').join(',');
             latestPostRows = await db.query(
-                `SELECT Post.*, Society.email AS society_email FROM Post JOIN Society ON Post.society_id = Society.society_id WHERE Post.society_id IN (${placeholders}) AND Post.type != 'poll' ORDER BY Post.created_at DESC LIMIT 5`,
+                `SELECT Post.*, Society.name AS society_name FROM Post JOIN Society ON Post.society_id = Society.society_id WHERE Post.society_id IN (${placeholders}) AND Post.type != 'poll' ORDER BY Post.created_at DESC LIMIT 5`,
                 ids
             );
         }
@@ -398,9 +391,9 @@ app.get(`${studentBase}/`, requireAuth('student'), async function(req, res) {
         const latestUpdates = latestPostRows.map(p => ({
             post_id: p.post_id,
             type: p.type.charAt(0).toUpperCase() + p.type.slice(1),
-            title: p.content.length > 60 ? p.content.substring(0, 60) + '...' : p.content,
+            title: p.title || '',
             content: p.content,
-            society_name: formatSocietyName(p.society_email),
+            society_name: p.society_name || '',
             created_at: formatDate(p.created_at),
             rsvped: rsvpSet.has(p.post_id)
         }));
@@ -411,7 +404,7 @@ app.get(`${studentBase}/`, requireAuth('student'), async function(req, res) {
             latestUpdates,
             currentUser: {
                 ...user,
-                joined_societies: joinedRows.map(s => formatSocietyName(s.email))
+                joined_societies: joinedRows.map(s => s.name || '')
             },
             isGuest: false,
             browsePath: `${studentBase}/societies`,
@@ -462,7 +455,7 @@ app.get(`${studentBase}/societies/:id/`, requireAuth('student'), async function(
         const societyUpdates = posts.map(p => ({
             post_id: p.post_id,
             type: p.type.charAt(0).toUpperCase() + p.type.slice(1),
-            title: p.content.length > 60 ? p.content.substring(0, 60) + '...' : p.content,
+            title: p.title || '',
             content: p.content,
             created_at: formatDate(p.created_at),
             rsvped: rsvpSet2.has(p.post_id)
@@ -502,7 +495,7 @@ app.get(`${studentBase}/profile/:id/`, requireAuth('student'), async function(re
             ...liveStudentLocals(req),
             user: {
                 ...userRows[0],
-                joined_societies: joinedSocieties.map(s => formatSocietyName(s.email))
+                joined_societies: joinedSocieties.map(s => s.name || '')
             },
             joinedSocietyObjects: joinedSocieties,
             isGuest: false,
@@ -595,12 +588,12 @@ app.get(`${studentBase}/feed/`, requireAuth('student'), async function(req, res)
             const ids = joinedRows.map(s => s.society_id);
             const placeholders = ids.map(() => '?').join(',');
             postRows = await db.query(
-                `SELECT Post.*, Society.email AS society_email FROM Post JOIN Society ON Post.society_id = Society.society_id WHERE Post.society_id IN (${placeholders}) AND Post.type != 'poll' ORDER BY Post.created_at DESC`,
+                `SELECT Post.*, Society.name AS society_name FROM Post JOIN Society ON Post.society_id = Society.society_id WHERE Post.society_id IN (${placeholders}) AND Post.type != 'poll' ORDER BY Post.created_at DESC`,
                 ids
             );
         } else {
             postRows = await db.query(
-                "SELECT Post.*, Society.email AS society_email FROM Post JOIN Society ON Post.society_id = Society.society_id WHERE Post.type != 'poll' ORDER BY Post.created_at DESC"
+                "SELECT Post.*, Society.name AS society_name FROM Post JOIN Society ON Post.society_id = Society.society_id WHERE Post.type != 'poll' ORDER BY Post.created_at DESC"
             );
         }
 
@@ -610,10 +603,10 @@ app.get(`${studentBase}/feed/`, requireAuth('student'), async function(req, res)
         const feedItems = postRows.map(p => ({
             post_id: p.post_id,
             type: p.type.charAt(0).toUpperCase() + p.type.slice(1),
-            title: p.content.length > 60 ? p.content.substring(0, 60) + '...' : p.content,
+            title: p.title || '',
             content: p.content,
             description: p.content,
-            society_name: formatSocietyName(p.society_email),
+            society_name: p.society_name || '',
             created_at: formatDate(p.created_at),
             rsvped: rsvpSet.has(p.post_id)
         }));
@@ -621,7 +614,7 @@ app.get(`${studentBase}/feed/`, requireAuth('student'), async function(req, res)
         res.render('student-feed', {
             ...liveStudentLocals(req),
             feedItems,
-            joinedSocieties: joinedRows.map(s => formatSocietyName(s.email)),
+            joinedSocieties: joinedRows.map(s => s.name || ''),
             rsvpBase: `${studentBase}/rsvp`
         });
     } catch (err) {
@@ -653,26 +646,22 @@ app.get(`${adminBase}/`, requireAuth('admin'), async function(req, res) {
     const user = req.session.user;
     try {
         const posts = await db.query('SELECT * FROM Post WHERE society_id = ? ORDER BY created_at DESC', [user.id]);
-        const events = await db.query(
-            'SELECT Event.*, Post.content FROM Event JOIN Post ON Event.post_id = Post.post_id WHERE Post.society_id = ?',
+        const rsvpCounts = await db.query(
+            'SELECT RSVP.post_id, COUNT(*) AS count FROM RSVP JOIN Event ON RSVP.post_id = Event.post_id JOIN Post ON Event.post_id = Post.post_id WHERE Post.society_id = ? GROUP BY RSVP.post_id',
             [user.id]
         );
-        const memberRows = await db.query('SELECT COUNT(*) AS count FROM Members WHERE society_id = ?', [user.id]);
-        const rsvpRows = await db.query(
-            'SELECT COUNT(*) AS count FROM RSVP WHERE post_id IN (SELECT post_id FROM Post WHERE society_id = ?)',
-            [user.id]
-        );
+        const rsvpMap = {};
+        rsvpCounts.forEach(r => { rsvpMap[r.post_id] = r.count; });
 
         res.render('admin-dashboard', {
             ...liveAdminLocals(),
-            postsCount: posts.length,
-            eventsCount: events.length,
-            membersCount: memberRows[0].count,
-            rsvpCount: rsvpRows[0].count,
             postItems: posts.map(p => ({
+                post_id: p.post_id,
                 type: p.type.charAt(0).toUpperCase() + p.type.slice(1),
-                title: p.content.length > 60 ? p.content.substring(0, 60) + '...' : p.content,
-                description: p.content
+                title: p.title || '',
+                description: p.content,
+                rsvp_count: p.type === 'event' ? (rsvpMap[p.post_id] || 0) : null,
+                created_at: formatDate(p.created_at)
             })),
             createPostPath: `${adminBase}/create-post/`,
             manageSocietyPath: `${adminBase}/manage-society/`
@@ -693,13 +682,57 @@ app.get(`${adminBase}/create-post/`, requireAuth('admin'), function(req, res) {
 
 app.post(`${adminBase}/create-post/`, requireAuth('admin'), async function(req, res) {
     const user = req.session.user;
-    const { content, type } = req.body;
+    const { title, content, type } = req.body;
+    const postType = type || 'announcement';
+    try {
+        const result = await db.query(
+            'INSERT INTO Post (society_id, type, title, content) VALUES (?, ?, ?, ?)',
+            [user.id, postType, title || '', content || '']
+        );
+        if (postType === 'event') {
+            await db.query('INSERT INTO Event (post_id) VALUES (?)', [result.insertId]);
+        }
+        res.redirect(`${adminBase}/create-post/?success=1`);
+    } catch (err) {
+        res.send('Database error: ' + err.message);
+    }
+});
+
+app.get(`${adminBase}/posts/:post_id/edit`, requireAuth('admin'), async function(req, res) {
+    const user = req.session.user;
+    try {
+        const rows = await db.query('SELECT * FROM Post WHERE post_id = ? AND society_id = ?', [req.params.post_id, user.id]);
+        if (!rows.length) return res.status(404).send('Post not found');
+        res.render('edit-post', {
+            ...liveAdminLocals(),
+            post: rows[0],
+            updatePath: `${adminBase}/posts/${req.params.post_id}/update`,
+            cancelPath: `${adminBase}/`
+        });
+    } catch (err) {
+        res.send('Database error: ' + err.message);
+    }
+});
+
+app.post(`${adminBase}/posts/:post_id/update`, requireAuth('admin'), async function(req, res) {
+    const user = req.session.user;
+    const { title, content } = req.body;
     try {
         await db.query(
-            'INSERT INTO Post (society_id, type, content) VALUES (?, ?, ?)',
-            [user.id, type || 'announcement', content || '']
+            'UPDATE Post SET title = ?, content = ? WHERE post_id = ? AND society_id = ?',
+            [title || '', content || '', req.params.post_id, user.id]
         );
-        res.redirect(`${adminBase}/create-post/?success=1`);
+        res.redirect(`${adminBase}/`);
+    } catch (err) {
+        res.send('Database error: ' + err.message);
+    }
+});
+
+app.post(`${adminBase}/posts/:post_id/delete`, requireAuth('admin'), async function(req, res) {
+    const user = req.session.user;
+    try {
+        await db.query('DELETE FROM Post WHERE post_id = ? AND society_id = ?', [req.params.post_id, user.id]);
+        res.redirect(`${adminBase}/`);
     } catch (err) {
         res.send('Database error: ' + err.message);
     }
@@ -714,14 +747,19 @@ app.get(`${adminBase}/manage-society/`, requireAuth('admin'), async function(req
             [user.id]
         );
         const events = await db.query(
-            'SELECT Event.*, Post.content FROM Event JOIN Post ON Event.post_id = Post.post_id WHERE Post.society_id = ?',
+            `SELECT Post.post_id, Post.title, Post.created_at,
+                    (SELECT COUNT(*) FROM RSVP WHERE RSVP.post_id = Post.post_id) AS rsvp_count
+             FROM Post
+             WHERE Post.society_id = ? AND Post.type = 'event'
+             ORDER BY Post.created_at DESC`,
             [user.id]
         );
 
         const eventItems = events.map(e => ({
-            title: e.content.length > 60 ? e.content.substring(0, 60) + '...' : e.content,
-            description: e.content,
-            event_date: e.event_date ? formatDate(e.event_date) : 'Date TBD'
+            post_id: e.post_id,
+            title: e.title || 'Untitled event',
+            created_at: formatDate(e.created_at),
+            rsvp_count: e.rsvp_count
         }));
 
         res.render('manage-society', {
@@ -729,8 +767,33 @@ app.get(`${adminBase}/manage-society/`, requireAuth('admin'), async function(req
             society: societyRows[0] || {},
             members,
             eventItems,
-            dashboardPath: `${adminBase}/`
+            dashboardPath: `${adminBase}/`,
+            profileUpdated: req.query.success === '1'
         });
+    } catch (err) {
+        res.send('Database error: ' + err.message);
+    }
+});
+
+app.post(`${adminBase}/manage-society/update`, requireAuth('admin'), async function(req, res) {
+    const user = req.session.user;
+    const { name, about_us_text } = req.body;
+    try {
+        await db.query(
+            'UPDATE Society SET name = ?, about_us_text = ? WHERE society_id = ?',
+            [name || '', about_us_text || '', user.id]
+        );
+        res.redirect(`${adminBase}/manage-society/?success=1`);
+    } catch (err) {
+        res.send('Database error: ' + err.message);
+    }
+});
+
+app.post(`${adminBase}/account/delete`, requireAuth('admin'), async function(req, res) {
+    const user = req.session.user;
+    try {
+        await db.query('DELETE FROM Society WHERE society_id = ?', [user.id]);
+        req.session.destroy(() => res.redirect('/login'));
     } catch (err) {
         res.send('Database error: ' + err.message);
     }
@@ -743,22 +806,23 @@ app.post(`${adminBase}/manage-society/members/:student_id/remove`, requireAuth('
             'DELETE FROM Members WHERE student_id = ? AND society_id = ?',
             [req.params.student_id, user.id]
         );
-        res.redirect(`${adminBase}/manage-society/`);
+        res.redirect(`${adminBase}/members/`);
     } catch (err) {
         res.send('Database error: ' + err.message);
     }
 });
 
 app.get(`${adminBase}/members/`, requireAuth('admin'), async function(req, res) {
+    const user = req.session.user;
     try {
-        const users = await db.query('SELECT * FROM Student ORDER BY last_name, first_name');
+        const members = await db.query(
+            'SELECT Student.* FROM Student JOIN Members ON Student.student_id = Members.student_id WHERE Members.society_id = ? ORDER BY Student.last_name, Student.first_name',
+            [user.id]
+        );
         res.render('users', {
             ...liveAdminLocals(),
-            users,
-            profileBasePath: `${adminBase}/members`,
-            dashboardPath: `${adminBase}/`,
-            publicSocietiesPath: `${studentBase}/societies/`,
-            directoryResetPath: `${adminBase}/members/`
+            members,
+            dashboardPath: `${adminBase}/`
         });
     } catch (err) {
         res.send('Database error: ' + err.message);
@@ -779,7 +843,7 @@ app.get(`${adminBase}/members/:id/`, requireAuth('admin'), async function(req, r
             ...liveAdminLocals(),
             user: {
                 ...userRows[0],
-                joined_societies: joinedSocieties.map(s => formatSocietyName(s.email))
+                joined_societies: joinedSocieties.map(s => s.name || '')
             },
             isGuest: false,
             browsePath: `${studentBase}/societies/`,

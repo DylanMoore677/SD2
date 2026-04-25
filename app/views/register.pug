@@ -25,14 +25,14 @@ block content
           .section-heading
             p.eyebrow Student Registration
             h2 Create your student account
-            p Keep the form simple, clear, and coursework-appropriate.
+            p Fill in your details to create a student account.
           if typeof registerError !== "undefined" && registerError && defaultRegistrationRole === "student"
             p.form-error= registerError
           form.form-stack(method="post", action="/register")
-            +formInput("student-email", "Email", "email", "Enter your university email", null, "email")
-            +formInput("student-first-name", "First Name", "text", "Enter your first name", null, "first_name")
-            +formInput("student-last-name", "Last Name", "text", "Enter your last name", null, "last_name")
-            +formInput("student-password", "Password", "password", "Create a password", null, "password")
+            +formInput("student-email", "Email", "email", "Enter your university email", null, "email", true)
+            +formInput("student-first-name", "First Name", "text", "Enter your first name", null, "first_name", true)
+            +formInput("student-last-name", "Last Name", "text", "Enter your last name", null, "last_name", true)
+            +formInput("student-password", "Password", "password", "Create a password", null, "password", true)
             .btn-row
               button.btn.btn-primary(type="submit") Create Student Account
               a.btn.btn-outline(href=loginPath) Back to Login
@@ -41,13 +41,14 @@ block content
           .section-heading
             p.eyebrow Society Registration
             h2 Register a society
-            p Admin registration doubles as society registration so the society can appear in the platform.
+            p Register your society to start posting and managing members.
           if typeof registerError !== "undefined" && registerError && defaultRegistrationRole === "admin"
             p.form-error= registerError
           form.form-stack(method="post", action="/register/admin")
-            +formInput("society-email", "Email", "email", "Enter the society email", null, "email")
-            +formTextarea("society-description", "About the Society", "Write a short society description", null, "about_us_text")
-            +formInput("society-password", "Password", "password", "Create a password", null, "password")
+            +formInput("society-name", "Society Name", "text", "Enter the society name", null, "name", true)
+            +formInput("society-email", "Email", "email", "Enter the society email", null, "email", true)
+            +formTextarea("society-description", "About the Society", "Write a short society description", null, "about_us_text", true)
+            +formInput("society-password", "Password", "password", "Create a password", null, "password", true)
             .btn-row
               button.btn.btn-primary(type="submit") Register Society
               a.btn.btn-outline(href=loginPath) Back to Login

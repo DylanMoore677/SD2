@@ -114,15 +114,15 @@ mixin authLoginEntry(studentHomePath, adminHomePath, guestPath, registerPath, ad
             p.card-kicker Admin
             p.card-text Open the organiser dashboard to manage posts, members, events, and society details.
 
-mixin formInput(id, label, type, placeholder, value, name)
+mixin formInput(id, label, type, placeholder, value, name, required)
   .form-group
     label(for=id)= label
-    input.form-input(id=id, name=name || id, type=type || "text", placeholder=placeholder, value=value || "")
+    input.form-input(id=id, name=name || id, type=type || "text", placeholder=placeholder, value=value || "", required=required || false)
 
-mixin formTextarea(id, label, placeholder, value, name)
+mixin formTextarea(id, label, placeholder, value, name, required)
   .form-group
     label(for=id)= label
-    textarea.form-textarea(id=id, name=name || id, placeholder=placeholder)= value || ""
+    textarea.form-textarea(id=id, name=name || id, placeholder=placeholder, required=required || false)= value || ""
 
 mixin statsGrid()
   .stats-grid

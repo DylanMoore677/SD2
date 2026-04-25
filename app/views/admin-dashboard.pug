@@ -16,65 +16,28 @@ block content
   - var createPostPath = typeof createPostPath !== "undefined" ? createPostPath : "/demo/admin/create-post/";
   - var manageSocietyPath = typeof manageSocietyPath !== "undefined" ? manageSocietyPath : "/demo/admin/manage-society/";
 
-  +pageHeader("Society Dashboard", "Use the organiser control panel to create new posts, review existing content, and keep the society structured around practical management tasks.", "Admin Dashboard")
-    a.btn.btn-primary(href=createPostPath) Create Post
-    a.btn.btn-outline(href=manageSocietyPath) Manage Society
+  +pageHeader("Post Dashboard", "Review your society posts and event content.", "Admin Dashboard")
 
   section.section-block
-    +dashboardLayout()
-      +dashboardSidebar("Control Panel", "Keep creation, editing, deletion, and society management grouped into a clear organiser workspace.")
-        +dashboardNav([
-          { label: "Overview", href: "#overview", active: true },
-          { label: "Post Actions", href: "#post-actions" },
-          { label: "Content Queue", href: "#content-queue" }
-        ])
-        .tag-stack
-          h3 Main tools
-          .tag-list
-            span.tag Create
-            span.tag Edit
-            span.tag Delete
-            span.tag Manage
-
-      main.dashboard-main
-        section.section-card#overview
-          .section-heading
-            p.eyebrow Dashboard Overview
-            h2 Society activity at a glance
-            p Keep the headline numbers visible before moving into the post management actions.
-          +statsGrid
-            +statCard(postsCount, "Posts", "Track published and draft content.")
-            +statCard(eventsCount, "Events", "Keep upcoming activity close to the dashboard.")
-            +statCard(membersCount, "Members", "Monitor the size of the society.")
-            +statCard(rsvpCount, "RSVPs", "Review attendance signals quickly.")
-
-        section.section-card#post-actions
-          .section-heading
-            p.eyebrow Post Actions
-            h2 Create, edit, or delete posts
-            p The organiser home should feel like a management system, not a browse page.
-          +cardGrid(3)
-            +sharedCard("management-card", "Create", "Create Post", "Open the clean post form and publish a new society update.")
-              a.btn.btn-outline(href=createPostPath) Create Post
-            +sharedCard("management-card", "Edit", "Edit Post", "Review existing society content and update the details when something changes.")
-              a.btn.btn-outline(href="#content-queue") Edit Posts
-            +sharedCard("management-card", "Delete", "Delete Post", "Remove outdated or incorrect content from the society feed when needed.")
-              a.btn.btn-outline(href="#content-queue") Delete Posts
-
+    .dashboard-main
         section.section-card#content-queue
           .section-heading
             p.eyebrow Society Content
             h2 Posts and event items in view
-            p Show the existing content in a practical queue so organisers can see what is currently live.
+            p View, edit, and delete your society's posts and events.
           if postItems.length
             .feed-stack
               each item in postItems
                 article.management-card.feed-card
                   p.card-kicker= item.type || "Post"
-                  h3.card-title= item.title || "Society content"
-                  p.card-text= item.description || "Current society content appears here."
+                  h3.card-title= item.title || "Untitled"
+                  p.card-text= item.description || ""
+                  p.feed-meta= item.created_at
                   .btn-row
-                    a.btn.btn-outline(href=manageSocietyPath + "#content-queue") Edit
-                    button.btn.btn-danger(type="button") Delete
+                    a.btn.btn-outline(href="/admin/posts/" + item.post_id + "/edit") Edit
+                    form(method="post", action="/admin/posts/" + item.post_id + "/delete")
+                      button.btn.btn-danger(type="submit") Delete
+                    if item.rsvp_count !== null && item.rsvp_count !== undefined
+                      span.post-rsvp-badge #{item.rsvp_count} RSVP#{item.rsvp_count === 1 ? "" : "s"}
           else
             +emptyState("Society content will appear here", "Use the dashboard to create new posts, then manage them from this queue.")

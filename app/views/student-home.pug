@@ -181,7 +181,7 @@ block content
           +studentHomeIcon("arrow")
     .card-grid.student-home-community-grid
       each society in featuredSocieties.slice(0, 3)
-        - var societyName = society && society.email ? society.email.split("@")[0].split(/[._-]/).filter(Boolean).map(function(word) { return word.charAt(0).toUpperCase() + word.slice(1); }).join(" ") + " Society" : "Society";
+        - var societyName = society && society.name ? society.name : "Society";
         article.society-card.student-community-card.is-community
           .student-community-body
             .student-community-title-row

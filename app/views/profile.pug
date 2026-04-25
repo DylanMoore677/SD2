@@ -91,7 +91,7 @@ block content
   - var recentUpdatesCount = typeof recentUpdatesCount !== "undefined" ? recentUpdatesCount : (isGuest ? 0 : Math.max(joinedCount + 3, joinedCount ? 4 : 0));
   - var activityItems = [{ icon: "members", value: joinedCount, label: "Joined Societies" }, { icon: "event", value: upcomingEventsCount, label: "Upcoming Events" }, { icon: "updates", value: recentUpdatesCount, label: "Recent Updates" }];
   - var societyObjects = typeof joinedSocietyObjects !== "undefined" ? joinedSocietyObjects : [];
-  - var joinedCommunities = societyObjects.map(function(s) { var formatName = function(email) { var lp = email ? email.split("@")[0] : "society"; var words = lp.split(/[._-]/).filter(Boolean).map(function(w) { return w.charAt(0).toUpperCase() + w.slice(1); }); return (words.join(" ") || "Society") + " Society"; }; return { name: formatName(s.email), id: s.society_id, description: s.about_us_text || "Community details will appear here.", badge: "Member" }; });
+  - var joinedCommunities = societyObjects.map(function(s) { return { name: s.name || "Society", id: s.society_id, badge: "Member" }; });
 
   header.page-header.student-profile-header
     .student-profile-header-copy
@@ -178,7 +178,7 @@ block content
     section.section-card.student-profile-actions-card
       p.student-profile-kicker Account Actions
       h2.card-title #{isGuest ? "Ready to create an account?" : "Manage your account"}
-      p.card-text #{isGuest ? "Create an account to save societies, personalise your feed, and manage your student space." : "Update your security settings or manage your account."}
+      p.card-text #{isGuest ? "Create an account to save societies, personalise your feed, and manage your student space." : "Log out of your account or permanently delete it."}
       .btn-row.student-profile-account-buttons
         if isGuest
           a.btn.btn-primary.student-profile-inline-button(href=registerPath)

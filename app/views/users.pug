@@ -8,100 +8,35 @@ block pageVars
   - var logoPath = typeof logoPath !== "undefined" ? logoPath : "/demo/admin/"
 
 block content
-  - var profilePath = profileBasePath || "/demo/student/profile";
+  - var membersList = typeof members !== "undefined" ? members : [];
   - var dashboardPath = typeof dashboardPath !== "undefined" ? dashboardPath : "/demo/admin/";
-  - var publicSocietiesPath = typeof publicSocietiesPath !== "undefined" ? publicSocietiesPath : "/demo/student/societies";
-  - var directoryResetPath = typeof directoryResetPath !== "undefined" ? directoryResetPath : "/demo/admin/members/";
-  if prototypeMessage
-    p.notice= prototypeMessage
 
-  +pageHeader("Member Directory", "Review student records in a cleaner organiser workspace, search quickly, and keep member information easy to scan.", "Admin / Organiser")
-    a.btn.btn-primary(href=dashboardPath) Dashboard
-    a.btn.btn-outline(href=publicSocietiesPath) View Public Society Pages
+  +pageHeader("Members", "Review and manage students who have joined your society.", "Admin")
 
   section.section-block(data-filter-root)
-    +dashboardLayout()
-      +dashboardSidebar("Directory Navigation", "Use the organiser directory to find students, open profile pages, and prepare for future member and RSVP workflows.")
-        +dashboardNav([
-          { label: "Directory", href: "#member-directory", active: true },
-          { label: "Search", href: "#directory-search" },
-          { label: "Profiles", href: "#profile-links" },
-          { label: "Workflow", href: "#organiser-workflow" }
-        ])
-
-      main.dashboard-main
-        section.section-card
-          .section-heading
-            p.eyebrow Directory Overview
-            h2 Member records and search tools
-            p Start with the most useful organiser signals before moving into the full list of student records.
-          +statsGrid
-            +statCard(users.length, "Student records", "Each entry links to the existing profile route.")
-            +statCard("Live", "Search tools", "Filtering stays on the client side and keeps backend behaviour untouched.")
-            +statCard("Profiles", "Next action", "Use the directory as the starting point before opening detailed student pages.")
-
-        section.form-shell#directory-search
-          .section-heading
-            p.eyebrow Directory Search
-            h2 Find student members quickly
-            p Search by name, email, or student ID while keeping the route and backend queries exactly as they are.
-          .filter-bar
-            .filter-grid
-              .form-group.filter-field
-                label(for="user-search") Search members
-                input#user-search.form-input(type="search", placeholder="Search by name, email, or student ID" data-filter-input)
-              .form-group.filter-field
-                label(for="directory-view") View
-                select#directory-view.form-select
-                  option All members
-                  option Recently viewed
-                  option Active societies
-              .form-group.filter-field
-                label(for="directory-sort") Sort by
-                select#directory-sort.form-select
-                  option Most relevant
-                  option A to Z
-                  option Student ID
-            .btn-row
-              button.btn.btn-primary(type="button" data-filter-trigger) Apply Search
-              a.btn.btn-outline(href=directoryResetPath) Reset
-          p.helper-text Showing #[span(data-filter-count)= users.length] of #{users.length} students
-
-        section.section-card#member-directory
-          .section-heading
-            p.eyebrow Member Directory
-            h2 Review student records
-            p Organisers can scan student entries quickly here and open the existing student profile pages for more detail.
-          .card-grid.cols-2
-            each user in users
-              - var userSearchText = [user.first_name, user.last_name, user.email].filter(Boolean).join(" ");
-              article.user-card(data-filter-item data-search-text=userSearchText)
-                p.card-kicker Student record
-                h3.card-title #{user.first_name} #{user.last_name}
-                p.feed-meta= user.email
-                .btn-row
-                  a.btn.btn-outline(href=profilePath + "/" + user.student_id) View Profile
-                  button.btn.btn-soft(type="button") Mark for Follow-up
-
-          div(hidden data-filter-empty)
-            +emptyState("No students matched your search", "Try a different name, email address, or student ID.")
-
-        section.section-card#profile-links
-          .section-heading
-            p.eyebrow Organiser Tasks
-            h2 How this directory supports the wider organiser workflow
-            p The member directory is the bridge between account review, content planning, and future RSVP coordination.
-          +cardGrid(3)
-            +sharedCard("dashboard-card", "Profiles", "Open detailed student pages", "Each card links to the existing student profile route so organisers can review more information when needed.")
-            +sharedCard("dashboard-card", "Members", "Track who is involved", "This layout keeps member records easy to scan before future society-specific filtering is added.")
-            +sharedCard("dashboard-card", "RSVP Planning", "Prepare for future attendance lists", "Student directories can support organiser attendance planning once RSVP data is connected.")
-
-        section.section-card#organiser-workflow
-          .section-heading
-            p.eyebrow Workflow
-            h2 Suggested organiser path
-            p Keep the organiser side of the app feeling like a dashboard workspace instead of a public browsing flow.
-          .flow-grid
-            +flowStep("1", "Sign in through organiser access", "Start from the organiser login page when you need tools rather than public student browsing.")
-            +flowStep("2", "Search member records", "Use the directory to find a student quickly and review the relevant profile information.")
-            +flowStep("3", "Return to content planning", "Move back into announcements, events, polls, and RSVP preparation when those tools are in use.")
+    section.section-card
+      .section-heading
+        p.eyebrow Members
+        h2 Members in this society
+      .form-group
+        label(for="member-search") Search members
+        input#member-search.form-input(type="search", placeholder="Search by name or email" data-filter-input)
+      if membersList.length
+        p.helper-text Showing #[span(data-filter-count)= membersList.length] of #{membersList.length} members
+        .data-table.members-table
+          .data-row.data-row-header
+            span Name
+            span Email
+            span
+          each member in membersList
+            - var searchText = [member.first_name, member.last_name, member.email].filter(Boolean).join(" ")
+            .data-row(data-filter-item data-search-text=searchText)
+              span #{member.first_name} #{member.last_name}
+              span= member.email
+              span.members-table-action
+                form(method="post", action="/admin/manage-society/members/" + member.student_id + "/remove")
+                  button.btn.btn-danger.btn-small(type="submit") Remove
+        div(hidden data-filter-empty)
+          +emptyState("No members matched your search", "Try a different name or email address.")
+      else
+        +emptyState("No members yet", "Students who join your society will appear here.")

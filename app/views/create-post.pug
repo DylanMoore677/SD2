@@ -13,7 +13,6 @@ block content
   - var postCreated = typeof postCreated !== "undefined" ? postCreated : false;
 
   +pageHeader("Create New Post", "Create an announcement or event for your society.", "Post Creation")
-    a.btn.btn-outline(href=dashboardPath) Back to Dashboard
 
   section.section-block
     .split-layout
@@ -33,6 +32,7 @@ block content
           section.auth-panel(data-role-panel="announcement")
             form.form-stack(method="post", action=createPostPath)
               input(type="hidden" name="type" value="announcement")
+              +formInput("post-title-ann", "Title", "text", "Enter a title...", null, "title")
               +formTextarea("post-content-ann", "Content", "Write your announcement...", null, "content")
               .btn-row
                 button.btn.btn-primary(type="submit") Create Announcement
@@ -40,6 +40,7 @@ block content
           section.auth-panel(data-role-panel="event" hidden)
             form.form-stack(method="post", action=createPostPath)
               input(type="hidden" name="type" value="event")
+              +formInput("post-title-evt", "Title", "text", "Enter a title...", null, "title")
               +formTextarea("post-content-evt", "Content", "Write your event details...", null, "content")
               .btn-row
                 button.btn.btn-primary(type="submit") Create Event
@@ -52,4 +53,4 @@ block content
             p Keep the information focused so students can read it quickly once it appears in the feed.
           .flow-grid
             +flowStep("1", "Choose post type", "Select Announcement for general news or Event for something students can attend.")
-            +flowStep("2", "Write the content", "Put the essential detail in the post body — keep it clear and concise.")
+            +flowStep("2", "Write the content", "Give the post a title, then write the full content in the body below.")

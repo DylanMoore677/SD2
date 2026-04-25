@@ -13,14 +13,7 @@ block content
   - var recentUpdates = typeof societyUpdates !== 'undefined' ? societyUpdates : [];
   - var isMember = typeof isMember !== "undefined" ? isMember : false;
   - var rsvpBase = typeof rsvpBase !== "undefined" ? rsvpBase : "/student/rsvp";
-  - var formatSocietyName = function(email) {
-  -   var localPart = email ? email.split("@")[0] : "society";
-  -   var words = localPart.split(/[._-]/).filter(Boolean).map(function(word) {
-  -     return word.charAt(0).toUpperCase() + word.slice(1);
-  -   });
-  -   return (words.join(" ") || "Society") + " Society";
-  - };
-  - var societyName = formatSocietyName(society && society.email);
+  - var societyName = society && society.name ? society.name : "Society";
   - var memberCount = members ? members.length : 0;
 
   +pageHeader(societyName)

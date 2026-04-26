@@ -1,5 +1,9 @@
 "use strict";
 
+// Static preview generator.
+// Compiles the live Pug templates into standalone HTML files under static/previews
+// using the same mock data that powers the /demo/* routes.
+
 const fs = require("fs");
 const path = require("path");
 const pug = require("pug");
@@ -15,6 +19,7 @@ const legacyGeneratedDirs = [
     path.join(rootDir, "static", "register")
 ];
 
+// Shared demo route map used when compiling links into the standalone previews.
 const demoPaths = Object.freeze({
     login: "/login",
     register: "/register/",
@@ -24,12 +29,14 @@ const demoPaths = Object.freeze({
     adminBase: "/demo/admin"
 });
 
-// Preview output is rebuilt from scratch, and old generated route folders are removed so they cannot shadow live routes.
+// Preview output is rebuilt from scratch, and old generated route folders are removed
+// so stale HTML cannot shadow live routes or confuse reviewers.
 [previewDir, ...legacyGeneratedDirs].forEach((dir) => {
     fs.rmSync(dir, { recursive: true, force: true });
 });
 fs.mkdirSync(previewDir, { recursive: true });
 
+// Small filesystem helpers used by the preview compilation steps below.
 function ensureDir(targetDir) {
     fs.mkdirSync(targetDir, { recursive: true });
 }
@@ -44,6 +51,7 @@ function compileTemplate(template, locals) {
     return pug.compileFile(path.join(viewsDir, template))(locals);
 }
 
+// Mock content shared with the routed /demo/* experience.
 const {
     adminNav,
     eventItems,
@@ -58,6 +66,7 @@ const {
     studentNav
 } = previewData;
 
+// Builds a simple hub page that links to each generated preview file.
 function buildPreviewHub() {
     const links = [
         { title: "Welcome Page", href: "/", description: "Frontend entry screen that links into the demo experience." },
@@ -113,6 +122,7 @@ function buildPreviewHub() {
     writePreview("index.html", html);
 }
 
+// Compiles each standalone preview page using the same view templates as the app.
 function buildStandalonePreviews() {
     const previews = [
         {

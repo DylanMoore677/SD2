@@ -74,6 +74,7 @@ mixin profileIcon(name)
         path(d="M13.5 8.5l3.5 3.5-3.5 3.5")
 
 block pageVars
+  //- Student nav fallback for live, demo, and preview rendering.
   - var pageRole = "student"
   - var headerRoleLabel = typeof headerRoleLabel !== "undefined" ? headerRoleLabel : "Student"
   - var logoPath = typeof logoPath !== "undefined" ? logoPath : "/demo/student/"
@@ -81,6 +82,8 @@ block pageVars
   - var navLinks = typeof navLinks !== "undefined" ? navLinks : [{ label: "Home", href: studentBasePath + "/", exact: true }, { label: "Societies", href: studentBasePath + "/societies/" }, { label: "News", href: studentBasePath + "/feed/" }, { label: "Profile", href: studentBasePath + "/profile/1/", icon: "profile" }]
 
 block content
+  //- Derive display-friendly values once so the visible markup stays readable
+  //- instead of repeating null checks throughout the profile sections.
   - var isGuest = typeof isGuest !== "undefined" ? isGuest : false;
   - var fullName = [user && user.first_name, user && user.last_name].filter(Boolean).join(" ");
   - var displayName = fullName || (isGuest ? "Guest User" : "Student Name");
@@ -149,6 +152,7 @@ block content
     section.section-card.student-profile-communities-card
       h2.card-title Your Communities
       p.card-text The societies you've joined.
+      //- Joined communities become direct links when the route passed real society IDs.
       if joinedCommunities.length
         .student-profile-community-list
           each community in joinedCommunities

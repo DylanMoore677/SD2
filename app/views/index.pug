@@ -4,6 +4,7 @@ extends layout
 include includes/ui.pug
 
 block pageVars
+  //- Public entry pages intentionally hide the authenticated nav so the auth UI stays central.
   - var pageRole = "student"
   - var headerRoleLabel = null
   - var navLinks = []

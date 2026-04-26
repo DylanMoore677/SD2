@@ -4,6 +4,7 @@ extends layout
 include includes/ui.pug
 
 block pageVars
+  //- Student nav fallback for live, demo, and preview contexts.
   - var pageRole = "student"
   - var headerRoleLabel = typeof headerRoleLabel !== "undefined" ? headerRoleLabel : "Student"
   - var logoPath = typeof logoPath !== "undefined" ? logoPath : "/demo/student/"
@@ -11,6 +12,7 @@ block pageVars
   - var navLinks = typeof navLinks !== "undefined" ? navLinks : [{ label: "Home", href: studentBasePath + "/", exact: true }, { label: "Societies", href: studentBasePath + "/societies/" }, { label: "News", href: studentBasePath + "/feed/" }, { label: "Profile", href: studentBasePath + "/profile/1/", icon: "profile" }]
 
 block content
+  //- listBasePath controls whether links point into /student/* or /preview/*.
   - var societies = typeof societies !== "undefined" ? societies : [];
   - var listBasePath = societyBasePath || "/preview/societies";
 
@@ -27,6 +29,7 @@ block content
         button.btn.btn-primary.societies-search-button(type="button" data-filter-trigger) Search
       p.helper-text.societies-search-count Showing #[span(data-filter-count)= societies.length] of #{societies.length} societies
 
+    //- The search UI is client-side only: site.js reads data-search-text from each card.
     .card-grid.society-directory-grid.student-society-grid
       each society in societies
         - var societyName = society.name || "Society";

@@ -4,6 +4,7 @@ extends layout
 include includes/ui.pug
 
 block pageVars
+  //- Student nav fallback keeps the same detail template usable for previews and live pages.
   - var pageRole = "student"
   - var headerRoleLabel = typeof headerRoleLabel !== "undefined" ? headerRoleLabel : "Student"
   - var logoPath = typeof logoPath !== "undefined" ? logoPath : "/demo/student/"
@@ -11,6 +12,7 @@ block pageVars
   - var navLinks = typeof navLinks !== "undefined" ? navLinks : [{ label: "Home", href: studentBasePath + "/", exact: true }, { label: "Societies", href: studentBasePath + "/societies/" }, { label: "News", href: studentBasePath + "/feed/" }, { label: "Profile", href: studentBasePath + "/profile/1/", icon: "profile" }]
 
 block content
+  //- Local fallbacks keep the detail layout stable even if a preview omits some fields.
   - var societiesBasePath = typeof societiesBasePath !== "undefined" ? societiesBasePath : studentBasePath + "/societies";
   - var recentUpdates = typeof societyUpdates !== 'undefined' ? societyUpdates : [];
   - var isMember = typeof isMember !== "undefined" ? isMember : false;
@@ -30,6 +32,7 @@ block content
             p.society-contact-email Contact email: #{society.email}
           p= society && society.about_us_text ? society.about_us_text : "More society information will appear here when it becomes available."
 
+      //- Membership actions swap between Join and Leave based on the route-provided flags.
       aside.sidebar-stack
         section.section-card
           .section-heading
@@ -51,6 +54,7 @@ block content
       p.eyebrow Society Posts
       h2 Latest posts and updates
     .card-grid.news-grid
+      //- Event posts gain RSVP controls only when a post_id/rsvpBase path is available.
       if recentUpdates.length
         each item in recentUpdates
           article.event-card.news-card

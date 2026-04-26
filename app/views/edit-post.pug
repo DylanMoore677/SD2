@@ -5,12 +5,14 @@ extends layout
 include includes/ui.pug
 
 block pageVars
+  //- Admin nav fallback for demo/preview contexts.
   - var pageRole = "admin"
   - var headerRoleLabel = typeof headerRoleLabel !== "undefined" ? headerRoleLabel : "Admin"
   - var navLinks = typeof navLinks !== "undefined" ? navLinks : [{ label: "Dashboard", href: "/demo/admin/" }, { label: "Manage Society", href: "/demo/admin/manage-society/" }, { label: "Create Post", href: "/demo/admin/create-post/" }, { label: "Members", href: "/demo/admin/members/" }]
   - var logoPath = typeof logoPath !== "undefined" ? logoPath : "/demo/admin/"
 
 block content
+  //- The route pre-populates post, updatePath, and cancelPath for this editor.
   - var post = typeof post !== "undefined" ? post : {};
   - var updatePath = typeof updatePath !== "undefined" ? updatePath : "#";
   - var cancelPath = typeof cancelPath !== "undefined" ? cancelPath : "/admin/";

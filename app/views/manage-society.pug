@@ -6,12 +6,14 @@ extends layout
 include includes/ui.pug
 
 block pageVars
+  //- Admin nav fallback for demo and preview contexts.
   - var pageRole = "admin"
   - var headerRoleLabel = typeof headerRoleLabel !== "undefined" ? headerRoleLabel : "Admin"
   - var navLinks = typeof navLinks !== "undefined" ? navLinks : [{ label: "Dashboard", href: "/demo/admin/" }, { label: "Manage Society", href: "/demo/admin/manage-society/" }, { label: "Create Post", href: "/demo/admin/create-post/" }, { label: "Members", href: "/demo/admin/members/" }]
   - var logoPath = typeof logoPath !== "undefined" ? logoPath : "/demo/admin/"
 
 block content
+  //- The route passes the live society record and event list; previews fall back to mock values.
   - var societyName = society && society.name ? society.name : "Managed Society";
   - var eventItems = typeof eventItems !== "undefined" ? eventItems : [];
   - var dashboardPath = typeof dashboardPath !== "undefined" ? dashboardPath : "/demo/admin/";
@@ -33,6 +35,7 @@ block content
           .btn-row
             button.btn.btn-primary(type="submit") Update
 
+      //- Events are shown here as a read-only management table with RSVP counts.
       section.section-card#events
         .section-heading
           p.eyebrow Events

@@ -1,3 +1,9 @@
+// Shared frontend behaviour file.
+// Handles:
+// 1. nav active states
+// 2. student/admin auth mode switching
+// 3. societies/member directory filtering
+// 4. student feed category filtering
 (function () {
     // Shared nav highlighting for routed and generated preview pages.
     function normalisePath(path) {
@@ -254,6 +260,7 @@
             });
         }
 
+        // Show or hide each news card based on the selected category pill and search text.
         function renderFeed() {
             var query = searchInput ? searchInput.value.trim().toLowerCase() : "";
             var visibleCount = 0;

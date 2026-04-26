@@ -4,6 +4,11 @@
 // Nothing in this file touches the database — it exists purely to populate
 // templates without needing a live MySQL connection.
 
+// ============================================================
+// Helper functions
+// Small utilities used to shape demo-only navigation and labels.
+// ============================================================
+
 // Derives a human-readable society name from an email address local-part.
 // Only used within this file to populate demo joined_societies arrays.
 function formatSocietyName(email) {
@@ -14,7 +19,8 @@ function formatSocietyName(email) {
     return `${words.join(" ") || "Society"} Society`;
 }
 
-// Returns the nav link array for student-role pages given a base path prefix
+// Returns the nav link array for student-role pages given a base path prefix.
+// Reused by both the routed /demo/* pages and generated preview HTML.
 function studentNav(basePath) {
     return [
         { label: "Home", href: `${basePath}/`, exact: true },
@@ -24,7 +30,7 @@ function studentNav(basePath) {
     ];
 }
 
-// Returns the nav link array for admin-role pages given a base path prefix
+// Returns the nav link array for admin-role pages given a base path prefix.
 function adminNav(basePath) {
     return [
         { label: "Dashboard", href: `${basePath}/`, exact: true },
@@ -33,6 +39,12 @@ function adminNav(basePath) {
         { label: "Members", href: `${basePath}/members/` }
     ];
 }
+
+// ============================================================
+// Demo directory + profile data
+// These objects drive the student home, society directory/detail,
+// profile page, and admin member directory previews.
+// ============================================================
 
 // Sample societies shown in the directory, home discovery cards, and society detail page
 const sampleSocieties = [
@@ -90,6 +102,11 @@ const guestUser = {
     email: "guest@preview",
     joined_societies: []
 };
+
+// ============================================================
+// Demo dashboard + feed content
+// These arrays feed the home page, student feed, and society detail cards.
+// ============================================================
 
 // Recent posts shown on the student home dashboard updates section
 const latestUpdates = [
@@ -168,6 +185,11 @@ const feedItems = [
     }
 ];
 
+// ============================================================
+// Demo admin content
+// Mock organiser-side content used by the admin dashboard and manage pages.
+// ============================================================
+
 // Posts shown in the admin dashboard post queue
 const postItems = [
     { type: "Announcement", title: "Welcome meeting reminder", description: "A reminder post for the next weekly society session." },
@@ -181,6 +203,8 @@ const eventItems = [
     { title: "Hack Night", description: "An evening build session for society members.", event_date: "Friday 7:00 PM" }
 ];
 
+// Exported as one plain object so both the Express demo routes and the
+// preview generator consume exactly the same placeholder content.
 module.exports = {
     adminNav,
     eventItems,

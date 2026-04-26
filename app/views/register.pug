@@ -5,12 +5,14 @@ extends layout
 include includes/ui.pug
 
 block pageVars
+  //- Registration lives outside the authenticated student/admin shells.
   - var pageRole = "student"
   - var headerRoleLabel = null
   - var navLinks = []
   - var logoPath = "/"
 
 block content
+  //- Shared public-route fallbacks allow this template to compile for app routes and previews.
   - var defaultRegistrationRole = typeof defaultRegistrationRole !== "undefined" ? defaultRegistrationRole : "student";
   - var loginPath = typeof loginPath !== "undefined" ? loginPath : "/login";
   - var guestPath = typeof guestPath !== "undefined" ? guestPath : "/demo/guest/";
@@ -24,6 +26,7 @@ block content
           button.role-tab(type="button" data-role-target="student") Register as Student
           button.role-tab(type="button" data-role-target="admin") Register as Admin
 
+        //- Student registration writes to the Student table through POST /register.
         section.auth-panel(data-role-panel="student")
           .section-heading
             p.eyebrow Student Registration
@@ -40,6 +43,7 @@ block content
               button.btn.btn-primary(type="submit") Create Student Account
               a.btn.btn-outline(href=loginPath) Back to Login
 
+        //- Admin registration creates a Society record through POST /register/admin.
         section.auth-panel(data-role-panel="admin" hidden)
           .section-heading
             p.eyebrow Society Registration

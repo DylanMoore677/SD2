@@ -4,12 +4,14 @@ extends layout
 include includes/ui.pug
 
 block pageVars
+  //- The login screen uses the same public shell as the landing/register pages.
   - var pageRole = "student"
   - var headerRoleLabel = null
   - var navLinks = []
   - var logoPath = "/"
 
 block content
+  //- Fallback paths keep the login template usable in live routes, demo routes, and preview HTML.
   - var registerPath = typeof registerPath !== "undefined" ? registerPath : "/register/"
   - var guestPath = typeof guestPath !== "undefined" ? guestPath : "/demo/guest/"
   - var studentHomePath = typeof studentHomePath !== "undefined" ? studentHomePath : "/demo/student/"

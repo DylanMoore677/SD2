@@ -5,12 +5,14 @@ extends layout
 include includes/ui.pug
 
 block pageVars
+  //- Admin nav fallback for live, demo, and preview organiser contexts.
   - var pageRole = "admin"
   - var headerRoleLabel = typeof headerRoleLabel !== "undefined" ? headerRoleLabel : "Admin"
   - var navLinks = typeof navLinks !== "undefined" ? navLinks : [{ label: "Dashboard", href: "/demo/admin/" }, { label: "Manage Society", href: "/demo/admin/manage-society/" }, { label: "Create Post", href: "/demo/admin/create-post/" }, { label: "Members", href: "/demo/admin/members/" }]
   - var logoPath = typeof logoPath !== "undefined" ? logoPath : "/demo/admin/"
 
 block content
+  //- Normalise counts and post arrays so the same template works with live DB data and previews.
   - var postsCount = typeof postsCount !== "undefined" ? postsCount : 12;
   - var eventsCount = typeof eventsCount !== "undefined" ? eventsCount : 4;
   - var membersCount = typeof membersCount !== "undefined" ? membersCount : 38;
@@ -28,6 +30,7 @@ block content
             p.eyebrow Society Content
             h2 Posts and event items in view
             p View, edit, and delete your society's posts and events.
+          //- Each card mirrors one real post/event row and exposes the matching admin actions.
           if postItems.length
             .feed-stack
               each item in postItems

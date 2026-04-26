@@ -57,6 +57,8 @@ mixin studentHomeIcon(name)
       circle(cx="12" cy="12" r="8")
 
 block pageVars
+  //- Fallback nav locals let this template render in live /student/*, demo /demo/student/*,
+  //- and generated preview HTML without needing separate versions.
   - var pageRole = "student"
   - var headerRoleLabel = typeof headerRoleLabel !== "undefined" ? headerRoleLabel : "Student"
   - var logoPath = typeof logoPath !== "undefined" ? logoPath : "/demo/student/"
@@ -64,6 +66,8 @@ block pageVars
   - var navLinks = typeof navLinks !== "undefined" ? navLinks : [{ label: "Home", href: studentBasePath + "/", exact: true }, { label: "Societies", href: studentBasePath + "/societies/" }, { label: "News", href: studentBasePath + "/feed/" }, { label: "Profile", href: studentBasePath + "/profile/1/", icon: "profile" }]
 
 block content
+  //- Normalise incoming locals so this page can render whether the data came from
+  //- MySQL, static demo data, or the preview generator.
   - var featuredSocieties = typeof featuredSocieties !== "undefined" ? featuredSocieties : [];
   - var latestUpdates = typeof latestUpdates !== "undefined" ? latestUpdates : [];
   - var currentUser = typeof currentUser !== "undefined" ? currentUser : null;
@@ -106,6 +110,7 @@ block content
             .student-home-stat-copy
               strong= latestUpdates.length
               span= latestUpdates.length === 1 ? "Recent Update" : "Recent Updates"
+        //- Primary student actions stay near the hero so the page behaves like a dashboard first.
         .student-home-action-row
           a.btn.btn-primary.student-dashboard-btn(href=browsePath)
             span.student-btn-icon
@@ -187,6 +192,7 @@ block content
         span.student-link-arrow
           +studentHomeIcon("arrow")
     .card-grid.student-home-community-grid
+      //- Only the first few societies are shown here so discovery stays secondary.
       each society in featuredSocieties.slice(0, 3)
         - var societyName = society && society.name ? society.name : "Society";
         article.society-card.student-community-card.is-community

@@ -62,6 +62,7 @@ mixin newsPageIcon(name)
         circle(cx="12", cy="12", r="8")
 
 block pageVars
+  //- Student nav fallback for live, demo, and preview contexts.
   - var pageRole = "student"
   - var headerRoleLabel = typeof headerRoleLabel !== "undefined" ? headerRoleLabel : "Student"
   - var logoPath = typeof logoPath !== "undefined" ? logoPath : "/demo/student/"
@@ -69,6 +70,8 @@ block pageVars
   - var navLinks = typeof navLinks !== "undefined" ? navLinks : [{ label: "Home", href: studentBasePath + "/", exact: true }, { label: "Societies", href: studentBasePath + "/societies/" }, { label: "News", href: studentBasePath + "/feed/" }, { label: "Profile", href: studentBasePath + "/profile/1/", icon: "profile" }]
 
 block content
+  //- Build the sidebar summary directly from feedItems so routes only need
+  //- to pass the raw post list rather than a second precomputed summary object.
   - var feedItems = typeof feedItems !== "undefined" ? feedItems : [];
   - var rsvpBase = typeof rsvpBase !== "undefined" ? rsvpBase : "/student/rsvp";
   - var feedSummary = [{ key: "Announcement", label: "Announcements", icon: "announcement" }, { key: "Event", label: "Events", icon: "event" }];
@@ -89,6 +92,7 @@ block content
     p.page-subtitle Stay updated with the latest from your societies and campus community.
 
   section.section-block.student-feed-section(data-feed-root)
+    //- Filter pills and feed search are wired to site.js through the data-feed-* hooks.
     .student-feed-toolbar
       .student-feed-filters(role="tablist" aria-label="News filters")
         button.news-filter-pill.is-active(type="button" data-feed-filter="all" aria-pressed="true")
@@ -102,6 +106,7 @@ block content
             span= summaryItem.label
 
     .student-news-layout
+      //- Main stacked news stream. Each card exposes searchable/filterable metadata.
       .student-feed-stream(data-feed-stream)
         if feedItems.length
           each item in feedItems
@@ -145,6 +150,7 @@ block content
           h3.card-title No updates match this filter
           p.card-text Try another category or clear the search to see more news from your societies.
 
+      //- Sidebar cards summarise the same feedItems list without changing the main feed state.
       aside.student-news-sidebar
         section.student-news-side-card
           h3.card-title Posts at a glance

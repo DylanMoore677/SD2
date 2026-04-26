@@ -1,6 +1,10 @@
 //- Reusable mixin library included by all page templates.
-//- Contains layout helpers (pageHeader, cardGrid, dashboardLayout),
-//- form helpers (formInput, formTextarea), and the auth login/register entry mixin.
+//- Contains:
+//- 1. shared layout/card/form helpers
+//- 2. admin/student dashboard helpers
+//- 3. the auth entry UI reused by the landing/login/register pages
+
+//- Generic card/stat/layout helpers shared by student and admin pages.
 mixin statCard(value, label, helper)
   article.stat-card
     p.stat-label= label
@@ -86,6 +90,8 @@ mixin authLoginEntry(studentHomePath, adminHomePath, guestPath, registerPath, ad
           h2 Login
         if typeof loginError !== "undefined" && loginError
           p.form-error Incorrect email or password. Please try again.
+        //- site.js keeps the hidden role input, form target, and register button text
+        //- aligned with the currently selected Student/Admin mode.
         form.form-stack(method="post", action="/login", data-login-form)
           input(type="hidden", name="role", value=initialRole, data-login-role-input)
           .form-group.auth-role-picker
@@ -116,6 +122,7 @@ mixin authLoginEntry(studentHomePath, adminHomePath, guestPath, registerPath, ad
             p.card-kicker Admin
             p.card-text Open the organiser dashboard to manage posts, members, events, and society details.
 
+//- Small form-control helpers keep the page templates shorter and more consistent.
 mixin formInput(id, label, type, placeholder, value, name, required)
   .form-group
     label(for=id)= label

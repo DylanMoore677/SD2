@@ -1,3 +1,10 @@
+// Main Express app entry point.
+// This file wires together:
+// - public entry/login/register pages
+// - mock-data demo routes under /demo/*
+// - live student/admin routes backed by MySQL
+// - unauthenticated preview routes for quickly inspecting database content
+
 // Core Node / Express dependencies
 const path = require("path");
 const express = require("express");
@@ -305,6 +312,12 @@ app.post('/login', async function(req, res) {
     }
 });
 
+// ============================================================
+// ENTRY + AUTH routes
+// These routes handle login/logout/registration before users
+// enter either the live dashboards or the mock demo flows.
+// ============================================================
+
 // Destroy the session and redirect to the login page
 app.get('/logout', function(req, res) {
     req.session.destroy(() => res.redirect('/login'));
@@ -362,6 +375,11 @@ app.post('/register/admin', async function(req, res) {
     }
 });
 
+// ============================================================
+// DEMO route entry
+// Redirects into the mock student dashboard and then registers
+// the rest of the demo-only route tree below.
+// ============================================================
 app.get("/demo/", function(req, res) {
     res.redirect(`${demoPaths.studentBase}/`);
 });
@@ -372,7 +390,7 @@ registerStudentDemoRoutes(demoPaths.guestBase, "Guest", guestUser, { isGuest: tr
 registerAdminDemoRoutes(demoPaths.adminBase);
 
 // ============================================================
-// STUDENT routes — protected, role = student
+// LIVE STUDENT routes — protected, role = student
 // ============================================================
 
 const studentBase = '/student';
@@ -663,7 +681,7 @@ app.get(`${studentBase}/feed/`, requireAuth('student'), async function(req, res)
 });
 
 // ============================================================
-// ADMIN routes — protected, role = admin
+// LIVE ADMIN routes — protected, role = admin
 // ============================================================
 
 const adminBase = '/admin';
@@ -911,6 +929,8 @@ app.get(`${adminBase}/members/:id/`, requireAuth('admin'), async function(req, r
 
 // ============================================================
 // Database-backed preview routes (no auth, kept for reference)
+// These keep the database visible during development without
+// needing to log in as a student or organiser first.
 // ============================================================
 
 app.get("/preview/societies", function(req, res) {

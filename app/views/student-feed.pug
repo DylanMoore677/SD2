@@ -1,6 +1,10 @@
+//- Student news feed — shows posts from joined societies with type filters (All, Announcements, Events).
+//- The sidebar shows a post type summary and the most active societies.
+//- Filtering is done client-side via data-feed-* attributes and site.js.
 extends layout
 include includes/ui.pug
 
+//- Inline SVG icon set used for the filter pills and sidebar items on this page
 mixin newsPageIcon(name)
   case name
     when "all"
@@ -79,6 +83,7 @@ block content
   - var totalPosts = feedItems.length;
   - var popularSocieties = Object.keys(societyCounts).map(function(name) { return { name: name, count: societyCounts[name] }; }).sort(function(a, b) { return b.count - a.count || a.name.localeCompare(b.name); }).slice(0, 3);
 
+  //- Build feed counts and popular societies from feedItems before rendering
   header.page-header.news-page-header
     h1.page-title My News
     p.page-subtitle Stay updated with the latest from your societies and campus community.

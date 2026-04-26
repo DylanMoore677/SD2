@@ -1939,7 +1939,6 @@ p {
     display: inline-flex;
     align-items: center;
     gap: 0.55rem;
-    min-width: 172px;
     justify-content: center;
     min-height: 52px;
     padding-inline: 1.15rem;

@@ -1,6 +1,11 @@
 "use strict";
 
-// Frontend-only demo data used by the /demo/* routes and the preview generator.
+// Static mock data used by the /demo/* routes and the static preview generator.
+// Nothing in this file touches the database — it exists purely to populate
+// templates without needing a live MySQL connection.
+
+// Derives a human-readable society name from an email address local-part.
+// Only used within this file to populate demo joined_societies arrays.
 function formatSocietyName(email) {
     const localPart = email ? email.split("@")[0] : "society";
     const words = localPart.split(/[._-]/).filter(Boolean).map((word) => {
@@ -9,6 +14,7 @@ function formatSocietyName(email) {
     return `${words.join(" ") || "Society"} Society`;
 }
 
+// Returns the nav link array for student-role pages given a base path prefix
 function studentNav(basePath) {
     return [
         { label: "Home", href: `${basePath}/`, exact: true },
@@ -18,6 +24,7 @@ function studentNav(basePath) {
     ];
 }
 
+// Returns the nav link array for admin-role pages given a base path prefix
 function adminNav(basePath) {
     return [
         { label: "Dashboard", href: `${basePath}/`, exact: true },
@@ -27,7 +34,7 @@ function adminNav(basePath) {
     ];
 }
 
-// Student-facing placeholder societies used across home, directory, profile, and feed pages.
+// Sample societies shown in the directory, home discovery cards, and society detail page
 const sampleSocieties = [
     {
         society_id: 1,
@@ -52,6 +59,7 @@ const sampleSocieties = [
     }
 ];
 
+// Sample student accounts used in the members list and demo profile pages
 const sampleMembers = [
     { student_id: 1, first_name: "Jane", last_name: "Doe", email: "jane@roehampton.ac.uk" },
     { student_id: 2, first_name: "Amir", last_name: "Khan", email: "amir@roehampton.ac.uk" },
@@ -59,6 +67,7 @@ const sampleMembers = [
     { student_id: 4, first_name: "Daniel", last_name: "Evans", email: "daniel@roehampton.ac.uk" }
 ];
 
+// Extends sampleMembers with joined_societies arrays for use in profile and home views
 const sampleUsers = sampleMembers.map((member, index) => {
     const joined = sampleSocieties
         .filter((_, societyIndex) => societyIndex === index % sampleSocieties.length || societyIndex === 0)
@@ -71,8 +80,10 @@ const sampleUsers = sampleMembers.map((member, index) => {
     };
 });
 
+// Default logged-in student used for the /demo/student/* routes
 const sampleUser = sampleUsers[0];
 
+// Placeholder user object for unauthenticated guest demo routes
 const guestUser = {
     first_name: "Guest",
     last_name: "",
@@ -80,7 +91,7 @@ const guestUser = {
     joined_societies: []
 };
 
-// Placeholder content blocks that keep the current live frontend populated.
+// Recent posts shown on the student home dashboard updates section
 const latestUpdates = [
     {
         type: "Announcement",
@@ -105,6 +116,7 @@ const latestUpdates = [
     }
 ];
 
+// Posts shown in the society detail page updates grid
 const societyUpdates = [
     {
         type: "Announcement",
@@ -120,6 +132,7 @@ const societyUpdates = [
     }
 ];
 
+// Posts shown in the student news feed page
 const feedItems = [
     {
         type: "Announcement",
@@ -155,12 +168,14 @@ const feedItems = [
     }
 ];
 
+// Posts shown in the admin dashboard post queue
 const postItems = [
     { type: "Announcement", title: "Welcome meeting reminder", description: "A reminder post for the next weekly society session." },
     { type: "Event", title: "Term workshop drop", description: "An event item announcing the next coding workshop." },
     { type: "Poll", title: "Member feedback poll", description: "A quick poll asking students which topics they want next." }
 ];
 
+// Events shown in the admin manage-society events table
 const eventItems = [
     { title: "Intro Workshop", description: "A practical beginner session for new members.", event_date: "Wednesday 5:00 PM" },
     { title: "Hack Night", description: "An evening build session for society members.", event_date: "Friday 7:00 PM" }

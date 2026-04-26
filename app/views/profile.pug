@@ -1,6 +1,10 @@
+//- Student profile page — shows the student's details, activity stats,
+//- joined societies, and account actions (logout / delete account).
+//- Also used as a read-only view for admins viewing a member's profile.
 extends layout
 include includes/ui.pug
 
+//- Inline SVG icon set used throughout the profile sections
 mixin profileIcon(name)
   case name
     when "avatar"
@@ -97,10 +101,8 @@ block content
     .student-profile-header-copy
       h1.page-title My Profile
       p.page-subtitle Manage your account details, view your joined societies, and update your preferences.
-    .student-profile-hero-avatar(aria-hidden="true")
-      span.student-profile-hero-avatar-circle
-        +profileIcon("avatar")
 
+  //- Overview row: profile summary card (name, email, member since) + activity stats card
   section.section-block.student-profile-section.student-profile-overview-section
     .student-profile-main-grid
       section.section-card.student-profile-summary-card
@@ -130,10 +132,6 @@ block content
               span Register
             a.btn.btn-outline.student-profile-inline-button(href=loginPath) Login
           else
-            button.btn.btn-outline.student-profile-inline-button(type="button")
-              span.student-profile-button-icon
-                +profileIcon("edit")
-              span Edit Profile
 
       aside.section-card.student-profile-activity-card
         h2.card-title Your Activity
@@ -146,6 +144,7 @@ block content
                 strong= item.value
                 span= item.label
 
+  //- Joined societies list with links to each society page
   section.section-block.student-profile-section
     section.section-card.student-profile-communities-card
       h2.card-title Your Communities
@@ -174,6 +173,7 @@ block content
           +profileIcon("plus")
         span Join More Societies
 
+  //- Account actions: logout button and permanent delete account button
   section.section-block.student-profile-section
     section.section-card.student-profile-actions-card
       p.student-profile-kicker Account Actions

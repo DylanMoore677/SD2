@@ -1,4 +1,6 @@
-//- Shared content building blocks for the live routed pages.
+//- Reusable mixin library included by all page templates.
+//- Contains layout helpers (pageHeader, cardGrid, dashboardLayout),
+//- form helpers (formInput, formTextarea), and the auth login/register entry mixin.
 mixin statCard(value, label, helper)
   article.stat-card
     p.stat-label= label
@@ -67,7 +69,7 @@ mixin dashboardNav(items)
     each item in items
       a(href=item.href, class=item.active ? "is-active" : false)= item.label
 
-//- Auth and form helpers stay in one place so login/register previews and routes share markup.
+//- Auth login/register entry — renders the role-switching login form and the support card beside it.
 mixin authLoginEntry(studentHomePath, adminHomePath, guestPath, registerPath, adminRegisterPath, defaultRole)
   - var initialRole = defaultRole || "student"
   section.section-block.auth-login-section

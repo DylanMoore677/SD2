@@ -1,3 +1,5 @@
+//- Derives a tag list from a society object and renders it as a row of tag pills.
+//- Falls back to keyword-based defaults if no tags are stored (e.g. detects "coding" in email).
 mixin societyTags(society)
   - var email = society && society.email ? society.email.toLowerCase() : ""
   - var rawTags = society && (society.tags || society.categories || society.tag_list)

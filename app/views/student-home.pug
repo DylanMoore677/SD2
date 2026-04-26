@@ -1,6 +1,10 @@
+//- Student home dashboard — shown after login at /student/.
+//- Sections: welcome hero with stats, recent updates from joined societies,
+//- and a "communities you might like" discovery grid of un-joined societies.
 extends layout
 include includes/ui.pug
 
+//- Inline SVG icon set used only on this page
 mixin studentHomeIcon(name)
   svg.student-home-svg(viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true")
     if name === "members"
@@ -74,6 +78,7 @@ block content
   - var heroImageSrc = typeof dashboardHeroImage !== "undefined" ? dashboardHeroImage : "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1400&q=80";
   - var primarySociety = joinedSocieties.length ? joinedSocieties[0] : (isGuest ? "Open guest access" : "Your first society will appear here");
 
+  //- Hero dashboard: welcome message, joined society count, recent updates count, and action buttons
   section.section-block.student-home-dashboard
     .student-home-dashboard-shell
       .student-home-dashboard-copy
@@ -126,6 +131,7 @@ block content
               strong Discover. Connect. Belong.
               p Explore student communities and make the most of your university life.
 
+  //- Recent activity: up to 3 latest posts from joined societies with RSVP buttons for events
   section.section-block.student-home-updates
     .student-home-section-head
       .student-home-section-title
@@ -169,6 +175,7 @@ block content
           span.student-news-divider(aria-hidden="true")
           p.student-news-society Student feed
 
+  //- Discovery grid: societies the student has not joined yet (filtered in app.js)
   section.section-block.student-home-discovery
     .student-home-section-head
       .student-home-section-title

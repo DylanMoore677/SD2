@@ -1,3 +1,5 @@
+//- Landing page shown at "/" when no session exists.
+//- Reuses the authLoginEntry mixin so it is visually identical to login.pug.
 extends layout
 include includes/ui.pug
 
@@ -8,6 +10,7 @@ block pageVars
   - var logoPath = "/"
 
 block content
+  //- Resolve path variables with safe fallbacks for demo/static preview contexts
   - var registerPath = typeof registerPath !== "undefined" ? registerPath : "/register/"
   - var guestPath = typeof guestPath !== "undefined" ? guestPath : "/demo/guest/"
   - var studentHomePath = typeof studentHomePath !== "undefined" ? studentHomePath : "/demo/student/"

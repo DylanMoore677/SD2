@@ -1,38 +1,27 @@
 // Main Express app entry point.
-// This file wires together:
-// - public entry/login/register pages
-// - mock-data demo routes under /demo/*
-// - live student/admin routes backed by MySQL
-// - unauthenticated preview routes for quickly inspecting database content
-
-// Core Node / Express dependencies
 const path = require("path");
 const express = require("express");
 const session = require("express-session");
-const bcrypt = require("bcryptjs");    // Used to hash passwords on register and verify on login
+const bcrypt = require("bcryptjs");
+
 var app = express();
 
-// Use Pug as the template engine; views live in app/views/
 app.set('view engine', 'pug');
 app.set("views", path.join(__dirname, "views"));
 
-// Parse URL-encoded form bodies (standard HTML form POST) and JSON bodies
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-// Session middleware — stores the logged-in user object in req.session.user
 app.use(session({
     secret: process.env.SESSION_SECRET || 'society-hub-dev-secret',
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 24 * 60 * 60 * 1000 }    // Session expires after 24 hours
+    cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-// Database query helper and static mock data for /demo/* routes
 const db = require('./services/db');
 const previewData = require("./services/preview-data");
 
-// Destructure the mock data exports used by /demo/* and preview routes
 const {
     adminNav,
     eventItems,
@@ -48,7 +37,6 @@ const {
     studentNav
 } = previewData;
 
-// Shared path constants — frozen so they can't be accidentally mutated
 const demoPaths = Object.freeze({
     login: "/login",
     register: "/register/",
@@ -58,21 +46,16 @@ const demoPaths = Object.freeze({
     adminBase: "/demo/admin"
 });
 
-
-// Formats a MySQL datetime into a short human-readable string (e.g. "Mon, Apr 7")
 function formatDate(dt) {
     if (!dt) return 'Recent';
     return new Date(dt).toLocaleDateString('en-GB', { weekday: 'short', month: 'short', day: 'numeric' });
 }
 
-// Auth middleware — redirects to /login if session is missing or wrong role
-// Pass role = 'student' or 'admin' to enforce a specific role; omit to just require any login
 function requireAuth(role) {
     return function(req, res, next) {
         if (!req.session || !req.session.user) {
             return res.redirect('/login');
         }
-        // If the user is logged in but the wrong role, redirect them to their own dashboard
         if (role && req.session.user.role !== role) {
             return req.session.user.role === 'student'
                 ? res.redirect('/student/')
@@ -82,17 +65,14 @@ function requireAuth(role) {
     };
 }
 
-// Looks up a society by ID from the mock data array
 function findSampleSociety(id) {
     return sampleSocieties.find((society) => String(society.society_id) === String(id)) || null;
 }
 
-// Looks up a student by ID from the mock data array, falling back to sampleUser
 function findSampleUser(id) {
     return sampleUsers.find((user) => String(user.student_id) === String(id)) || sampleUser;
 }
 
-// Returns nav/logo/role locals shared across all student-role demo pages
 function studentSharedLocals(basePath, roleLabel) {
     return {
         navLinks: studentNav(basePath),
@@ -101,7 +81,6 @@ function studentSharedLocals(basePath, roleLabel) {
     };
 }
 
-// Returns nav/logo/role locals shared across all admin-role demo pages
 function adminSharedLocals(basePath) {
     return {
         navLinks: adminNav(basePath),
@@ -110,7 +89,6 @@ function adminSharedLocals(basePath) {
     };
 }
 
-// Returns nav/logo/role locals for the database-backed /preview/* routes
 function databasePreviewLocals() {
     return {
         navLinks: [
@@ -123,7 +101,6 @@ function databasePreviewLocals() {
     };
 }
 
-// Renders a login/register/landing view with the standard entry-page path locals pre-filled
 function renderEntryView(res, view, locals) {
     res.render(view, {
         loginPath: demoPaths.login,
@@ -136,9 +113,6 @@ function renderEntryView(res, view, locals) {
     });
 }
 
-// Registers all student-facing demo routes (home, societies, profile, feed) under basePath.
-// Used three times: /demo/student (logged in), /demo/guest (unauthenticated), and indirectly
-// for static preview generation.
 function registerStudentDemoRoutes(basePath, roleLabel, user, options) {
     const isGuest = Boolean(options && options.isGuest);
     const sharedLocals = studentSharedLocals(basePath, roleLabel);
@@ -170,12 +144,10 @@ function registerStudentDemoRoutes(basePath, roleLabel, user, options) {
 
     app.get(`${basePath}/societies/:id/`, function(req, res) {
         const society = findSampleSociety(req.params.id);
-
         if (!society) {
             res.status(404).send("Society not found");
             return;
         }
-
         res.render("society-detail", {
             ...sharedLocals,
             society,
@@ -205,8 +177,6 @@ function registerStudentDemoRoutes(basePath, roleLabel, user, options) {
     });
 }
 
-// Registers all admin-facing demo routes (dashboard, create post, manage society, members)
-// under basePath using mock data only — no database involvement
 function registerAdminDemoRoutes(basePath) {
     const sharedLocals = adminSharedLocals(basePath);
 
@@ -256,7 +226,6 @@ function registerAdminDemoRoutes(basePath) {
 // Entry pages
 // ============================================================
 
-// Landing page — redirect to the appropriate dashboard if already logged in
 app.get("/", function(req, res) {
     if (req.session && req.session.user) {
         return req.session.user.role === 'student'
@@ -266,7 +235,50 @@ app.get("/", function(req, res) {
     renderEntryView(res, "index");
 });
 
-// Login page — redirect away if already logged in; pass error flag from query string
+// About page — shows correct navbar based on login state
+app.get("/about", function(req, res) {
+    const isLoggedIn = req.session && req.session.user;
+    const role = isLoggedIn ? req.session.user.role : null;
+
+    let navLinks;
+    let logoPath = '/';
+    let headerRoleLabel = '';
+
+    if (isLoggedIn && role === 'student') {
+        const user = req.session.user;
+        navLinks = [
+            { label: 'Home', href: '/student/', exact: true },
+            { label: 'Societies', href: '/student/societies/' },
+            { label: 'News', href: '/student/feed/' },
+            { label: 'About', href: '/about' },
+            { label: 'Profile', href: `/student/profile/${user.id}/`, icon: 'profile' },
+            { label: 'Logout', href: '/logout' }
+        ];
+        logoPath = '/student/';
+        headerRoleLabel = 'Student';
+    } else if (isLoggedIn && role === 'admin') {
+        navLinks = [
+            { label: 'Dashboard', href: '/admin/', exact: true },
+            { label: 'Manage Society', href: '/admin/manage-society/' },
+            { label: 'Create Post', href: '/admin/create-post/' },
+            { label: 'Members', href: '/admin/members/' },
+            { label: 'About', href: '/about' },
+            { label: 'Logout', href: '/logout' }
+        ];
+        logoPath = '/admin/';
+        headerRoleLabel = 'Admin';
+    } else {
+        navLinks = [
+            { label: 'Home', href: '/' },
+            { label: 'Societies', href: '/preview/societies' },
+            { label: 'About', href: '/about' },
+            { label: 'Login', href: '/login' }
+        ];
+    }
+
+    res.render("about", { navLinks, logoPath, headerRoleLabel });
+});
+
 app.get(demoPaths.login, function(req, res) {
     if (req.session && req.session.user) {
         return req.session.user.role === 'student'
@@ -276,11 +288,8 @@ app.get(demoPaths.login, function(req, res) {
     renderEntryView(res, "login", { loginError: req.query.error === '1' });
 });
 
-// Login form submission — looks up the user by email, then verifies the bcrypt hash
-// Redirects to the appropriate dashboard on success, or back to /login?error=1 on failure
 app.post('/login', async function(req, res) {
     const { email, password, role } = req.body;
-
     try {
         if (role === 'admin') {
             const results = await db.query('SELECT * FROM Society WHERE email = ?', [email]);
@@ -312,32 +321,18 @@ app.post('/login', async function(req, res) {
     }
 });
 
-// ============================================================
-// ENTRY + AUTH routes
-// These routes handle login/logout/registration before users
-// enter either the live dashboards or the mock demo flows.
-// ============================================================
-
-// Destroy the session and redirect to the login page
 app.get('/logout', function(req, res) {
     req.session.destroy(() => res.redirect('/login'));
 });
 
-// Registration page pre-configured to show the student tab by default
 app.get(demoPaths.register, function(req, res) {
-    renderEntryView(res, "register", {
-        defaultRegistrationRole: "student"
-    });
+    renderEntryView(res, "register", { defaultRegistrationRole: "student" });
 });
 
-// Registration page pre-configured to show the admin/society tab by default
 app.get(demoPaths.adminRegister, function(req, res) {
-    renderEntryView(res, "register", {
-        defaultRegistrationRole: "admin"
-    });
+    renderEntryView(res, "register", { defaultRegistrationRole: "admin" });
 });
 
-// Student registration — hashes the password with bcrypt before inserting into Student table
 app.post('/register', async function(req, res) {
     const { email, first_name, last_name, password } = req.body;
     try {
@@ -356,7 +351,6 @@ app.post('/register', async function(req, res) {
     }
 });
 
-// Society (admin) registration — hashes the password and inserts into Society table
 app.post('/register/admin', async function(req, res) {
     const { name, email, about_us_text, password } = req.body;
     try {
@@ -375,27 +369,20 @@ app.post('/register/admin', async function(req, res) {
     }
 });
 
-// ============================================================
-// DEMO route entry
-// Redirects into the mock student dashboard and then registers
-// the rest of the demo-only route tree below.
-// ============================================================
 app.get("/demo/", function(req, res) {
     res.redirect(`${demoPaths.studentBase}/`);
 });
 
-// Demo routes (mock data, no auth required)
 registerStudentDemoRoutes(demoPaths.studentBase, "Student", sampleUser, { isGuest: false });
 registerStudentDemoRoutes(demoPaths.guestBase, "Guest", guestUser, { isGuest: true });
 registerAdminDemoRoutes(demoPaths.adminBase);
 
 // ============================================================
-// LIVE STUDENT routes — protected, role = student
+// STUDENT routes
 // ============================================================
 
 const studentBase = '/student';
 
-// Builds the nav/logo locals for live student pages using the session user's ID for the profile link
 function liveStudentLocals(req) {
     const user = req.session.user;
     return {
@@ -403,6 +390,7 @@ function liveStudentLocals(req) {
             { label: 'Home', href: `${studentBase}/`, exact: true },
             { label: 'Societies', href: `${studentBase}/societies/` },
             { label: 'News', href: `${studentBase}/feed/` },
+            { label: 'About', href: '/about' },
             { label: 'Profile', href: `${studentBase}/profile/${user.id}/`, icon: 'profile' },
             { label: 'Logout', href: '/logout' }
         ],
@@ -411,8 +399,6 @@ function liveStudentLocals(req) {
     };
 }
 
-// Student home — loads joined societies, filters out joined ones from the discovery section,
-// fetches the 5 most recent posts from joined societies, and checks RSVP status
 app.get(`${studentBase}/`, requireAuth('student'), async function(req, res) {
     const user = req.session.user;
     try {
@@ -466,7 +452,6 @@ app.get(`${studentBase}/`, requireAuth('student'), async function(req, res) {
     }
 });
 
-// Society directory — lists all societies from the database
 app.get(`${studentBase}/societies/`, requireAuth('student'), async function(req, res) {
     try {
         const societies = await db.query('SELECT * FROM Society');
@@ -480,7 +465,6 @@ app.get(`${studentBase}/societies/`, requireAuth('student'), async function(req,
     }
 });
 
-// Society detail page — loads the society, its members, its posts, and the student's RSVP state
 app.get(`${studentBase}/societies/:id/`, requireAuth('student'), async function(req, res) {
     const user = req.session.user;
     try {
@@ -527,7 +511,6 @@ app.get(`${studentBase}/societies/:id/`, requireAuth('student'), async function(
     }
 });
 
-// Student profile — students can only view their own profile; redirects if the ID doesn't match
 app.get(`${studentBase}/profile/:id/`, requireAuth('student'), async function(req, res) {
     const user = req.session.user;
     if (String(req.params.id) !== String(user.id)) {
@@ -559,7 +542,6 @@ app.get(`${studentBase}/profile/:id/`, requireAuth('student'), async function(re
     }
 });
 
-// Delete student account — removes the student's RSVPs, memberships, and account row, then logs out
 app.post(`${studentBase}/account/delete`, requireAuth('student'), async function(req, res) {
     const user = req.session.user;
     try {
@@ -572,7 +554,6 @@ app.post(`${studentBase}/account/delete`, requireAuth('student'), async function
     }
 });
 
-// Join a society — inserts a Members row if one doesn't already exist
 app.post(`${studentBase}/societies/:id/join`, requireAuth('student'), async function(req, res) {
     const user = req.session.user;
     try {
@@ -592,8 +573,6 @@ app.post(`${studentBase}/societies/:id/join`, requireAuth('student'), async func
     }
 });
 
-// Leave a society — removes the student's RSVPs for that society's events first,
-// then removes the Members row to avoid orphaned RSVP records
 app.post(`${studentBase}/societies/:id/leave`, requireAuth('student'), async function(req, res) {
     const user = req.session.user;
     try {
@@ -611,8 +590,6 @@ app.post(`${studentBase}/societies/:id/leave`, requireAuth('student'), async fun
     }
 });
 
-// RSVP toggle — inserts an RSVP row if one doesn't exist, removes it if it does
-// Redirects back to wherever the student came from (referer header)
 app.post(`${studentBase}/rsvp/:post_id`, requireAuth('student'), async function(req, res) {
     const user = req.session.user;
     const postId = req.params.post_id;
@@ -632,7 +609,6 @@ app.post(`${studentBase}/rsvp/:post_id`, requireAuth('student'), async function(
     }
 });
 
-// News feed — shows posts from joined societies; falls back to all posts if not a member of any
 app.get(`${studentBase}/feed/`, requireAuth('student'), async function(req, res) {
     const user = req.session.user;
     try {
@@ -681,12 +657,11 @@ app.get(`${studentBase}/feed/`, requireAuth('student'), async function(req, res)
 });
 
 // ============================================================
-// LIVE ADMIN routes — protected, role = admin
+// ADMIN routes
 // ============================================================
 
 const adminBase = '/admin';
 
-// Returns nav/logo locals for all live admin pages
 function liveAdminLocals() {
     return {
         navLinks: [
@@ -694,6 +669,7 @@ function liveAdminLocals() {
             { label: 'Manage Society', href: `${adminBase}/manage-society/` },
             { label: 'Create Post', href: `${adminBase}/create-post/` },
             { label: 'Members', href: `${adminBase}/members/` },
+            { label: 'About', href: '/about' },
             { label: 'Logout', href: '/logout' }
         ],
         logoPath: `${adminBase}/`,
@@ -701,7 +677,6 @@ function liveAdminLocals() {
     };
 }
 
-// Admin dashboard — loads the society's posts and maps RSVP counts onto event posts
 app.get(`${adminBase}/`, requireAuth('admin'), async function(req, res) {
     const user = req.session.user;
     try {
@@ -731,7 +706,6 @@ app.get(`${adminBase}/`, requireAuth('admin'), async function(req, res) {
     }
 });
 
-// Create post page — shows a success message if redirected back with ?success=1
 app.get(`${adminBase}/create-post/`, requireAuth('admin'), function(req, res) {
     res.render('create-post', {
         ...liveAdminLocals(),
@@ -741,8 +715,6 @@ app.get(`${adminBase}/create-post/`, requireAuth('admin'), function(req, res) {
     });
 });
 
-// Create post submission — inserts the Post row, then also inserts an Event stub row
-// for event-type posts because the RSVP table has a FK to Event.post_id
 app.post(`${adminBase}/create-post/`, requireAuth('admin'), async function(req, res) {
     const user = req.session.user;
     const { title, content, type } = req.body;
@@ -761,7 +733,6 @@ app.post(`${adminBase}/create-post/`, requireAuth('admin'), async function(req, 
     }
 });
 
-// Edit post page — fetches the post by ID, scoped to the logged-in society to prevent cross-society edits
 app.get(`${adminBase}/posts/:post_id/edit`, requireAuth('admin'), async function(req, res) {
     const user = req.session.user;
     try {
@@ -778,7 +749,6 @@ app.get(`${adminBase}/posts/:post_id/edit`, requireAuth('admin'), async function
     }
 });
 
-// Update post — saves new title and content, scoped to the society to prevent unauthorised edits
 app.post(`${adminBase}/posts/:post_id/update`, requireAuth('admin'), async function(req, res) {
     const user = req.session.user;
     const { title, content } = req.body;
@@ -793,7 +763,6 @@ app.post(`${adminBase}/posts/:post_id/update`, requireAuth('admin'), async funct
     }
 });
 
-// Delete post — cascades to Event and RSVP rows via the FK chain defined in the schema
 app.post(`${adminBase}/posts/:post_id/delete`, requireAuth('admin'), async function(req, res) {
     const user = req.session.user;
     try {
@@ -804,7 +773,6 @@ app.post(`${adminBase}/posts/:post_id/delete`, requireAuth('admin'), async funct
     }
 });
 
-// Manage society page — loads the society profile, member list, and events with RSVP counts
 app.get(`${adminBase}/manage-society/`, requireAuth('admin'), async function(req, res) {
     const user = req.session.user;
     try {
@@ -842,7 +810,6 @@ app.get(`${adminBase}/manage-society/`, requireAuth('admin'), async function(req
     }
 });
 
-// Update society profile — saves name and about_us_text, redirects with ?success=1 for the success banner
 app.post(`${adminBase}/manage-society/update`, requireAuth('admin'), async function(req, res) {
     const user = req.session.user;
     const { name, about_us_text } = req.body;
@@ -857,7 +824,6 @@ app.post(`${adminBase}/manage-society/update`, requireAuth('admin'), async funct
     }
 });
 
-// Delete society account — removes the Society row (cascades to Members and Posts) then logs out
 app.post(`${adminBase}/account/delete`, requireAuth('admin'), async function(req, res) {
     const user = req.session.user;
     try {
@@ -868,7 +834,6 @@ app.post(`${adminBase}/account/delete`, requireAuth('admin'), async function(req
     }
 });
 
-// Remove a member from the society and redirect back to the members page
 app.post(`${adminBase}/manage-society/members/:student_id/remove`, requireAuth('admin'), async function(req, res) {
     const user = req.session.user;
     try {
@@ -882,7 +847,6 @@ app.post(`${adminBase}/manage-society/members/:student_id/remove`, requireAuth('
     }
 });
 
-// Members list — shows all students who have joined this society, ordered alphabetically
 app.get(`${adminBase}/members/`, requireAuth('admin'), async function(req, res) {
     const user = req.session.user;
     try {
@@ -900,7 +864,6 @@ app.get(`${adminBase}/members/`, requireAuth('admin'), async function(req, res) 
     }
 });
 
-// Individual member profile view — read-only view of a student's profile from the admin side
 app.get(`${adminBase}/members/:id/`, requireAuth('admin'), async function(req, res) {
     try {
         const userRows = await db.query('SELECT * FROM Student WHERE student_id = ?', [req.params.id]);
@@ -918,7 +881,7 @@ app.get(`${adminBase}/members/:id/`, requireAuth('admin'), async function(req, r
                 joined_societies: joinedSocieties.map(s => s.name || '')
             },
             isGuest: false,
-            browsePath: `${studentBase}/societies/`,
+            browsePath: `/student/societies/`,
             loginPath: '/login',
             registerPath: null
         });
@@ -928,9 +891,7 @@ app.get(`${adminBase}/members/:id/`, requireAuth('admin'), async function(req, r
 });
 
 // ============================================================
-// Database-backed preview routes (no auth, kept for reference)
-// These keep the database visible during development without
-// needing to log in as a student or organiser first.
+// Preview routes
 // ============================================================
 
 app.get("/preview/societies", function(req, res) {

@@ -13,13 +13,10 @@ html(lang="en")
     link(rel="stylesheet", href="/style.css")
   block pageVars
   body(class=typeof pageRole !== "undefined" ? "role-" + pageRole : false)
-    //- Safe fallback nav/logo values keep static previews and partial renders from breaking
-    //- if a page forgets to pass its own navigation locals.
-    - var defaultNavLinks = [{ label: "Home", href: "/", exact: true }, { label: "Societies", href: "/preview/societies" }, { label: "Profile", href: "/preview/profile/1" }, { label: "Members", href: "/preview/users" }, { label: "Login", href: "/login" }];
+    - var defaultNavLinks = [{ label: "Home", href: "/", exact: true }, { label: "Societies", href: "/preview/societies" }, { label: "About", href: "/about" }, { label: "Login", href: "/login" }];
     - var currentNavLinks = typeof navLinks !== "undefined" && navLinks ? navLinks : defaultNavLinks;
     - var currentLogoPath = typeof logoPath !== "undefined" && logoPath ? logoPath : "/";
     .page-shell.site-shell(class=typeof pageRole !== "undefined" ? pageRole + "-shell" : false)
-      //- Shared chrome used by every page: sticky header, centred content wrapper, and footer.
       header.site-header
         .page-container
           nav.navbar(aria-label="Primary navigation")
@@ -46,8 +43,7 @@ html(lang="en")
       main.content
         .page-container.content-stack
           block content
-      //- Shared footer copy appears on both public and authenticated pages.
       footer.footer.site-footer
         .page-container
-          p Society Hub â€” your university society platform.
+          p Society Hub — your university society platform.
     script(src="/site.js")

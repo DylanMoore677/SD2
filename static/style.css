@@ -2892,3 +2892,44 @@ p {
         white-space: normal;
     }
 }
+
+/* Society card image */
+.society-card-image {
+    width: 100%;
+    height: 160px;
+    overflow: hidden;
+    border-radius: 10px 10px 0 0;
+}
+
+.society-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.student-society-card:hover .society-card-image img {
+    transform: scale(1.05);
+}
+
+.student-society-card {
+    overflow: hidden;
+    border-radius: 12px;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.student-society-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+}
+
+.society-card-desc {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}

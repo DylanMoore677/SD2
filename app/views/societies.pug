@@ -4,7 +4,6 @@ extends layout
 include includes/ui.pug
 
 block pageVars
-  //- Student nav fallback for live, demo, and preview contexts.
   - var pageRole = "student"
   - var headerRoleLabel = typeof headerRoleLabel !== "undefined" ? headerRoleLabel : "Student"
   - var logoPath = typeof logoPath !== "undefined" ? logoPath : "/demo/student/"
@@ -12,7 +11,6 @@ block pageVars
   - var navLinks = typeof navLinks !== "undefined" ? navLinks : [{ label: "Home", href: studentBasePath + "/", exact: true }, { label: "Societies", href: studentBasePath + "/societies/" }, { label: "News", href: studentBasePath + "/feed/" }, { label: "Profile", href: studentBasePath + "/profile/1/", icon: "profile" }]
 
 block content
-  //- listBasePath controls whether links point into /student/* or /preview/*.
   - var societies = typeof societies !== "undefined" ? societies : [];
   - var listBasePath = societyBasePath || "/preview/societies";
 
@@ -29,15 +27,19 @@ block content
         button.btn.btn-primary.societies-search-button(type="button" data-filter-trigger) Search
       p.helper-text.societies-search-count Showing #[span(data-filter-count)= societies.length] of #{societies.length} societies
 
-    //- The search UI is client-side only: site.js reads data-search-text from each card.
     .card-grid.society-directory-grid.student-society-grid
       each society in societies
         - var societyName = society.name || "Society";
         - var searchText = [societyName, society.email, society.about_us_text, society.tags, society.categories, society.tag_list].filter(Boolean).join(" ");
+        - var imageUrl = society.logo_url || "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80";
         article.society-card.student-society-card(data-filter-item data-search-text=searchText)
+          .society-card-image
+            img(src=imageUrl alt=societyName onerror="this.src='https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80'")
           .student-society-card-body
             p.card-kicker Society
             h3.card-title= societyName
+            if society.about_us_text
+              p.society-card-desc= society.about_us_text
             a.btn.btn-primary.student-society-link(href=listBasePath + "/" + society.society_id) View Society
 
     div(hidden data-filter-empty)

@@ -2933,3 +2933,114 @@ p {
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
+
+/* About page */
+.about-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.about-hero {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: linear-gradient(135deg, #0A2B56 0%, #115A88 100%);
+    border-radius: 16px;
+    margin-bottom: 3rem;
+    color: white;
+}
+
+.about-hero h1 {
+    font-size: 2.8rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.about-intro {
+    font-size: 1.1rem;
+    max-width: 700px;
+    margin: 0 auto;
+    opacity: 0.9;
+    color: white;
+    line-height: 1.8;
+}
+
+.about-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.about-card {
+    background: white;
+    border: 1px solid rgba(10, 43, 86, 0.1);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.about-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+.about-card-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.about-card h3 {
+    color: #0A2B56;
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+}
+
+.about-card p {
+    color: #555;
+    line-height: 1.7;
+    font-size: 0.95rem;
+}
+
+.about-card a {
+    color: #115A88;
+    text-decoration: underline;
+}
+
+.about-cta {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: rgba(46, 115, 214, 0.06);
+    border-radius: 16px;
+    border: 1px solid rgba(10, 43, 86, 0.08);
+}
+
+.about-cta h2 {
+    color: #0A2B56;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.about-cta p {
+    color: #555;
+    margin-bottom: 1.5rem;
+    font-size: 1.05rem;
+}
+
+.about-btn {
+    display: inline-block;
+    background: #0A2B56;
+    color: white;
+    padding: 0.9rem 2.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.about-btn:hover {
+    background: #115A88;
+    color: white;
+}
